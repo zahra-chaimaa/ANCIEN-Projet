@@ -1,0 +1,129 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.maintenance.solvesFunctions;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Collection;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.util.Iterator;<a name="line.4"></a>
+<FONT color="green">005</FONT>    import java.util.LinkedList;<a name="line.5"></a>
+<FONT color="green">006</FONT>    <a name="line.6"></a>
+<FONT color="green">007</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.7"></a>
+<FONT color="green">008</FONT>    import jcolibri.extensions.classification.ClassificationSolution;<a name="line.8"></a>
+<FONT color="green">009</FONT>    import jcolibri.method.maintenance.SolvesFunction;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import jcolibri.method.retrieve.RetrievalResult;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import jcolibri.method.retrieve.NNretrieval.NNScoringMethod;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import jcolibri.method.retrieve.selection.SelectCases;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import jcolibri.method.reuse.classification.KNNClassificationConfig;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import jcolibri.method.revise.classification.BasicClassificationOracle;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.method.revise.classification.ClassificationOracle;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    /**<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Provides the ICF algorithm solves function which will <a name="line.18"></a>
+<FONT color="green">019</FONT>     * decide which cases solve a query. <a name="line.19"></a>
+<FONT color="green">020</FONT>     * <a name="line.20"></a>
+<FONT color="green">021</FONT>     * @author Lisa Cummins<a name="line.21"></a>
+<FONT color="green">022</FONT>     * @author Derek Bridge<a name="line.22"></a>
+<FONT color="green">023</FONT>     * 22/05/07<a name="line.23"></a>
+<FONT color="green">024</FONT>     */<a name="line.24"></a>
+<FONT color="green">025</FONT>    public class ICFSolvesFunction extends SolvesFunction<a name="line.25"></a>
+<FONT color="green">026</FONT>    {<a name="line.26"></a>
+<FONT color="green">027</FONT>            /**<a name="line.27"></a>
+<FONT color="green">028</FONT>             * Sets the cases that both solve q or contribute to its <a name="line.28"></a>
+<FONT color="green">029</FONT>             * misclassification. In the case of ICF we only record <a name="line.29"></a>
+<FONT color="green">030</FONT>             * cases that solve q. According to the ICF definition, <a name="line.30"></a>
+<FONT color="green">031</FONT>             * a case solves a query if it is of the same class as <a name="line.31"></a>
+<FONT color="green">032</FONT>             * the query and if there are no classes more similar <a name="line.32"></a>
+<FONT color="green">033</FONT>             * to the query with a different class.<a name="line.33"></a>
+<FONT color="green">034</FONT>             * <a name="line.34"></a>
+<FONT color="green">035</FONT>             * @param q the query<a name="line.35"></a>
+<FONT color="green">036</FONT>             * @param cases from which to find the cases which solve<a name="line.36"></a>
+<FONT color="green">037</FONT>             * and classify the query. These include the query itself. <a name="line.37"></a>
+<FONT color="green">038</FONT>             * @param knnConfig the similarity configuration<a name="line.38"></a>
+<FONT color="green">039</FONT>             */<a name="line.39"></a>
+<FONT color="green">040</FONT>            public void setCasesThatSolveAndMisclassifyQ(CBRCase q, Collection&lt;CBRCase&gt; cases, KNNClassificationConfig knnConfig)<a name="line.40"></a>
+<FONT color="green">041</FONT>            {<a name="line.41"></a>
+<FONT color="green">042</FONT>                    solveQ = new LinkedList&lt;CBRCase&gt;();<a name="line.42"></a>
+<FONT color="green">043</FONT>                    misclassifyQ = null;<a name="line.43"></a>
+<FONT color="green">044</FONT>                    <a name="line.44"></a>
+<FONT color="green">045</FONT>                    knnConfig.setK(RetrievalResult.RETRIEVE_ALL);<a name="line.45"></a>
+<FONT color="green">046</FONT>                    Collection&lt;RetrievalResult&gt; orderedRetrievedCases = NNScoringMethod.evaluateSimilarity(cases, q, knnConfig);<a name="line.46"></a>
+<FONT color="green">047</FONT>                    orderedRetrievedCases = SelectCases.selectTopKRR(orderedRetrievedCases, knnConfig.getK());<a name="line.47"></a>
+<FONT color="green">048</FONT>                    <a name="line.48"></a>
+<FONT color="green">049</FONT>                    ClassificationOracle oracle = new BasicClassificationOracle();<a name="line.49"></a>
+<FONT color="green">050</FONT>                    boolean disagreeingCaseFound = false;<a name="line.50"></a>
+<FONT color="green">051</FONT>                    Iterator&lt;RetrievalResult&gt; iter = orderedRetrievedCases.iterator();<a name="line.51"></a>
+<FONT color="green">052</FONT>                    while(!disagreeingCaseFound &amp;&amp; iter.hasNext())<a name="line.52"></a>
+<FONT color="green">053</FONT>                    {       CBRCase c = iter.next().get_case();<a name="line.53"></a>
+<FONT color="green">054</FONT>                            ClassificationSolution cSol = (ClassificationSolution)c.getSolution();<a name="line.54"></a>
+<FONT color="green">055</FONT>                            if(oracle.isCorrectPrediction(cSol, q))<a name="line.55"></a>
+<FONT color="green">056</FONT>                            {       solveQ.add(c);<a name="line.56"></a>
+<FONT color="green">057</FONT>                            }<a name="line.57"></a>
+<FONT color="green">058</FONT>                            else<a name="line.58"></a>
+<FONT color="green">059</FONT>                            {       disagreeingCaseFound = true;<a name="line.59"></a>
+<FONT color="green">060</FONT>                            }<a name="line.60"></a>
+<FONT color="green">061</FONT>                    }<a name="line.61"></a>
+<FONT color="green">062</FONT>            }<a name="line.62"></a>
+<FONT color="green">063</FONT>    }<a name="line.63"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

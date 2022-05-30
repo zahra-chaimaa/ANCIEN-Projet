@@ -1,0 +1,301 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * StopWordsDetector.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 20/06/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.extensions.textual.IE.common;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.Collection;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.util.HashSet;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.util.Set;<a name="line.13"></a>
+<FONT color="green">014</FONT>    <a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.cbrcore.Attribute;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.extensions.textual.IE.IEutils;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import jcolibri.extensions.textual.IE.gate.GatePhrasesExtractor;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import jcolibri.extensions.textual.IE.representation.IEText;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import jcolibri.extensions.textual.IE.representation.Token;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import jcolibri.util.AttributeUtils;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import jcolibri.util.ProgressController;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    /**<a name="line.26"></a>
+<FONT color="green">027</FONT>     * Removes stop words (workds without relevant meaning) and punctuation symbols.<a name="line.27"></a>
+<FONT color="green">028</FONT>     * It uses a built-in list and modifies the "isStopWord" flag of the tokens.<a name="line.28"></a>
+<FONT color="green">029</FONT>     * &lt;p&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     * The first version was developed at: Robert Gordon University - Aberdeen &amp; Facultad Informática,<a name="line.30"></a>
+<FONT color="green">031</FONT>     * Universidad Complutense de Madrid (GAIA)<a name="line.31"></a>
+<FONT color="green">032</FONT>     * &lt;/p&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     * @author Juan A. Recio-Garcia<a name="line.33"></a>
+<FONT color="green">034</FONT>     * @version 2.0<a name="line.34"></a>
+<FONT color="green">035</FONT>     */<a name="line.35"></a>
+<FONT color="green">036</FONT>    public class StopWordsDetector<a name="line.36"></a>
+<FONT color="green">037</FONT>    {<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>        /**<a name="line.39"></a>
+<FONT color="green">040</FONT>         * Performs the algorithm in the given attributes of a collection of cases.<a name="line.40"></a>
+<FONT color="green">041</FONT>         * These attributes must be IEText objects.<a name="line.41"></a>
+<FONT color="green">042</FONT>         */<a name="line.42"></a>
+<FONT color="green">043</FONT>        public static void detectStopWords(Collection&lt;CBRCase&gt; cases, Collection&lt;Attribute&gt; attributes)<a name="line.43"></a>
+<FONT color="green">044</FONT>        {<a name="line.44"></a>
+<FONT color="green">045</FONT>            org.apache.commons.logging.LogFactory.getLog(StopWordsDetector.class).info("Detecting stop words.");<a name="line.45"></a>
+<FONT color="green">046</FONT>            ProgressController.init(StopWordsDetector.class, "Detecting stop words ...", cases.size());<a name="line.46"></a>
+<FONT color="green">047</FONT>            for(CBRCase c: cases)<a name="line.47"></a>
+<FONT color="green">048</FONT>            {<a name="line.48"></a>
+<FONT color="green">049</FONT>                for(Attribute a: attributes)<a name="line.49"></a>
+<FONT color="green">050</FONT>                {<a name="line.50"></a>
+<FONT color="green">051</FONT>                    Object o = AttributeUtils.findValue(a, c);<a name="line.51"></a>
+<FONT color="green">052</FONT>                    detectStopWords((IEText)o);<a name="line.52"></a>
+<FONT color="green">053</FONT>                }<a name="line.53"></a>
+<FONT color="green">054</FONT>                ProgressController.step(GatePhrasesExtractor.class);<a name="line.54"></a>
+<FONT color="green">055</FONT>            }<a name="line.55"></a>
+<FONT color="green">056</FONT>            ProgressController.finish(GatePhrasesExtractor.class);<a name="line.56"></a>
+<FONT color="green">057</FONT>        }<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+<FONT color="green">059</FONT>        /**<a name="line.59"></a>
+<FONT color="green">060</FONT>         * Performs the algorithm in the given attributes of a query.<a name="line.60"></a>
+<FONT color="green">061</FONT>         * These attributes must be IEText objects.<a name="line.61"></a>
+<FONT color="green">062</FONT>         */<a name="line.62"></a>
+<FONT color="green">063</FONT>        public static void detectStopWords(CBRQuery query, Collection&lt;Attribute&gt; attributes)<a name="line.63"></a>
+<FONT color="green">064</FONT>        {<a name="line.64"></a>
+<FONT color="green">065</FONT>                org.apache.commons.logging.LogFactory.getLog(StopWordsDetector.class).info("Detecting stop words.");<a name="line.65"></a>
+<FONT color="green">066</FONT>                for(Attribute a: attributes)<a name="line.66"></a>
+<FONT color="green">067</FONT>                {<a name="line.67"></a>
+<FONT color="green">068</FONT>                    Object o = AttributeUtils.findValue(a, query);<a name="line.68"></a>
+<FONT color="green">069</FONT>                    detectStopWords((IEText)o);<a name="line.69"></a>
+<FONT color="green">070</FONT>                }<a name="line.70"></a>
+<FONT color="green">071</FONT>        }<a name="line.71"></a>
+<FONT color="green">072</FONT>        <a name="line.72"></a>
+<FONT color="green">073</FONT>        /**<a name="line.73"></a>
+<FONT color="green">074</FONT>         * Performs the algorithm in all the attributes of a collection of cases<a name="line.74"></a>
+<FONT color="green">075</FONT>         * These attributes must be IEText objects.<a name="line.75"></a>
+<FONT color="green">076</FONT>         */<a name="line.76"></a>
+<FONT color="green">077</FONT>        public static void detectStopWords(Collection&lt;CBRCase&gt; cases)<a name="line.77"></a>
+<FONT color="green">078</FONT>        {<a name="line.78"></a>
+<FONT color="green">079</FONT>            org.apache.commons.logging.LogFactory.getLog(StopWordsDetector.class).info("Detecting stop words.");<a name="line.79"></a>
+<FONT color="green">080</FONT>            ProgressController.init(StopWordsDetector.class, "Detecting stop words ...", cases.size());<a name="line.80"></a>
+<FONT color="green">081</FONT>            for(CBRCase c: cases)<a name="line.81"></a>
+<FONT color="green">082</FONT>            {<a name="line.82"></a>
+<FONT color="green">083</FONT>                Collection&lt;IEText&gt; texts = IEutils.getTexts(c);<a name="line.83"></a>
+<FONT color="green">084</FONT>                for(IEText t : texts)<a name="line.84"></a>
+<FONT color="green">085</FONT>                    detectStopWords(t);<a name="line.85"></a>
+<FONT color="green">086</FONT>                ProgressController.step(GatePhrasesExtractor.class);<a name="line.86"></a>
+<FONT color="green">087</FONT>            }<a name="line.87"></a>
+<FONT color="green">088</FONT>            ProgressController.finish(GatePhrasesExtractor.class);<a name="line.88"></a>
+<FONT color="green">089</FONT>        }<a name="line.89"></a>
+<FONT color="green">090</FONT>        <a name="line.90"></a>
+<FONT color="green">091</FONT>        /**<a name="line.91"></a>
+<FONT color="green">092</FONT>         * Performs the algorithm in all the attributes of a query<a name="line.92"></a>
+<FONT color="green">093</FONT>         * These attributes must be IEText objects.<a name="line.93"></a>
+<FONT color="green">094</FONT>         */<a name="line.94"></a>
+<FONT color="green">095</FONT>        public static void detectStopWords(CBRQuery query)<a name="line.95"></a>
+<FONT color="green">096</FONT>        {    <a name="line.96"></a>
+<FONT color="green">097</FONT>            org.apache.commons.logging.LogFactory.getLog(StopWordsDetector.class).info("Detecting stop words.");<a name="line.97"></a>
+<FONT color="green">098</FONT>            Collection&lt;IEText&gt; texts = IEutils.getTexts(query);<a name="line.98"></a>
+<FONT color="green">099</FONT>            for(IEText t : texts)<a name="line.99"></a>
+<FONT color="green">100</FONT>                detectStopWords(t);<a name="line.100"></a>
+<FONT color="green">101</FONT>        }<a name="line.101"></a>
+<FONT color="green">102</FONT>        <a name="line.102"></a>
+<FONT color="green">103</FONT>        /**<a name="line.103"></a>
+<FONT color="green">104</FONT>         * Performs the algorithm in a given IEText object<a name="line.104"></a>
+<FONT color="green">105</FONT>         */<a name="line.105"></a>
+<FONT color="green">106</FONT>        public static void detectStopWords(IEText text)<a name="line.106"></a>
+<FONT color="green">107</FONT>        {<a name="line.107"></a>
+<FONT color="green">108</FONT>            for(Token t: text.getAllTokens())<a name="line.108"></a>
+<FONT color="green">109</FONT>            {<a name="line.109"></a>
+<FONT color="green">110</FONT>                String word = t.getRawContent().toLowerCase();<a name="line.110"></a>
+<FONT color="green">111</FONT>                if(stopWordSet.contains(word))<a name="line.111"></a>
+<FONT color="green">112</FONT>                    t.setStopWord(true);<a name="line.112"></a>
+<FONT color="green">113</FONT>            }<a name="line.113"></a>
+<FONT color="green">114</FONT>        }<a name="line.114"></a>
+<FONT color="green">115</FONT>            <a name="line.115"></a>
+<FONT color="green">116</FONT>        /**<a name="line.116"></a>
+<FONT color="green">117</FONT>         * Stop words list<a name="line.117"></a>
+<FONT color="green">118</FONT>         */<a name="line.118"></a>
+<FONT color="green">119</FONT>        static String[] stopWords = { "a", "a's", "able", "about", "above",<a name="line.119"></a>
+<FONT color="green">120</FONT>                    "according", "accordingly", "across", "actually", "after",<a name="line.120"></a>
+<FONT color="green">121</FONT>                    "afterwards", "again", "against", "ain't", "all", "allow",<a name="line.121"></a>
+<FONT color="green">122</FONT>                    "allows", "almost", "alone", "along", "already", "also",<a name="line.122"></a>
+<FONT color="green">123</FONT>                    "although", "always", "am", "among", "amongst", "an", "and",<a name="line.123"></a>
+<FONT color="green">124</FONT>                    "another", "any", "anybody", "anyhow", "anyone", "anything",<a name="line.124"></a>
+<FONT color="green">125</FONT>                    "anyway", "anyways", "anywhere", "apart", "appear", "appreciate",<a name="line.125"></a>
+<FONT color="green">126</FONT>                    "appropriate", "are", "aren't", "around", "as", "aside", "ask",<a name="line.126"></a>
+<FONT color="green">127</FONT>                    "asking", "associated", "at", "available", "away", "awfully", "b",<a name="line.127"></a>
+<FONT color="green">128</FONT>                    "be", "became", "because", "become", "becomes", "becoming", "been",<a name="line.128"></a>
+<FONT color="green">129</FONT>                    "before", "beforehand", "behind", "being", "believe", "below",<a name="line.129"></a>
+<FONT color="green">130</FONT>                    "beside", "besides", "best", "better", "between", "beyond", "both",<a name="line.130"></a>
+<FONT color="green">131</FONT>                    "brief", "but", "by", "c", "c'mon", "c's", "came", "can", "can't",<a name="line.131"></a>
+<FONT color="green">132</FONT>                    "cannot", "cant", "cause", "causes", "certain", "certainly",<a name="line.132"></a>
+<FONT color="green">133</FONT>                    "changes", "clearly", "co", "com", "come", "comes", "concerning",<a name="line.133"></a>
+<FONT color="green">134</FONT>                    "consequently", "consider", "considering", "contain", "containing",<a name="line.134"></a>
+<FONT color="green">135</FONT>                    "contains", "corresponding", "could", "couldn't", "course",<a name="line.135"></a>
+<FONT color="green">136</FONT>                    "currently", "d", "definitely", "described", "despite", "did",<a name="line.136"></a>
+<FONT color="green">137</FONT>                    "didn't", "different", "do", "does", "doesn't", "doing", "don't",<a name="line.137"></a>
+<FONT color="green">138</FONT>                    "done", "down", "downwards", "during", "e", "each", "edu", "eg",<a name="line.138"></a>
+<FONT color="green">139</FONT>                    "eight", "either", "else", "elsewhere", "enough", "entirely",<a name="line.139"></a>
+<FONT color="green">140</FONT>                    "especially", "et", "etc", "even", "ever", "every", "everybody",<a name="line.140"></a>
+<FONT color="green">141</FONT>                    "everyone", "everything", "everywhere", "ex", "exactly", "example",<a name="line.141"></a>
+<FONT color="green">142</FONT>                    "except", "f", "far", "few", "fifth", "first", "five", "followed",<a name="line.142"></a>
+<FONT color="green">143</FONT>                    "following", "follows", "for", "former", "formerly", "forth",<a name="line.143"></a>
+<FONT color="green">144</FONT>                    "four", "from", "further", "furthermore", "g", "get", "gets",<a name="line.144"></a>
+<FONT color="green">145</FONT>                    "getting", "given", "gives", "go", "goes", "going", "gone", "got",<a name="line.145"></a>
+<FONT color="green">146</FONT>                    "gotten", "greetings", "h", "had", "hadn't", "happens", "hardly",<a name="line.146"></a>
+<FONT color="green">147</FONT>                    "has", "hasn't", "have", "haven't", "having", "he", "he's",<a name="line.147"></a>
+<FONT color="green">148</FONT>                    "hello", "help", "hence", "her", "here", "here's", "hereafter",<a name="line.148"></a>
+<FONT color="green">149</FONT>                    "hereby", "herein", "hereupon", "hers", "herself", "hi", "him",<a name="line.149"></a>
+<FONT color="green">150</FONT>                    "himself", "his", "hither", "hopefully", "how", "howbeit",<a name="line.150"></a>
+<FONT color="green">151</FONT>                    "however", "i", "i'd", "i'll", "i'm", "i've", "ie", "if",<a name="line.151"></a>
+<FONT color="green">152</FONT>                    "ignored", "immediate", "in", "inasmuch", "inc", "indeed",<a name="line.152"></a>
+<FONT color="green">153</FONT>                    "indicate", "indicated", "indicates", "inner", "insofar",<a name="line.153"></a>
+<FONT color="green">154</FONT>                    "instead", "into", "inward", "is", "isn't", "it", "it'd", "it'll",<a name="line.154"></a>
+<FONT color="green">155</FONT>                    "it's", "its", "itself", "j", "just", "k", "keep", "keeps", "kept",<a name="line.155"></a>
+<FONT color="green">156</FONT>                    "know", "knows", "known", "l", "last", "lately", "later", "latter",<a name="line.156"></a>
+<FONT color="green">157</FONT>                    "latterly", "least", "less", "lest", "let", "let's", "like",<a name="line.157"></a>
+<FONT color="green">158</FONT>                    "liked", "likely", "little", "look", "looking", "looks", "ltd",<a name="line.158"></a>
+<FONT color="green">159</FONT>                    "m", "mainly", "many", "may", "maybe", "me", "mean", "meanwhile",<a name="line.159"></a>
+<FONT color="green">160</FONT>                    "merely", "might", "more", "moreover", "most", "mostly", "much",<a name="line.160"></a>
+<FONT color="green">161</FONT>                    "must", "my", "myself", "n", "name", "namely", "nd", "near",<a name="line.161"></a>
+<FONT color="green">162</FONT>                    "nearly", "necessary", "need", "needs", "neither", "never",<a name="line.162"></a>
+<FONT color="green">163</FONT>                    "nevertheless", "new", "next", "nine", "no", "nobody", "non",<a name="line.163"></a>
+<FONT color="green">164</FONT>                    "none", "noone", "nor", "normally", "not", "nothing", "novel",<a name="line.164"></a>
+<FONT color="green">165</FONT>                    "now", "nowhere", "o", "obviously", "of", "off", "often", "oh",<a name="line.165"></a>
+<FONT color="green">166</FONT>                    "ok", "okay", "old", "on", "once", "one", "ones", "only", "onto",<a name="line.166"></a>
+<FONT color="green">167</FONT>                    "or", "other", "others", "otherwise", "ought", "our", "ours",<a name="line.167"></a>
+<FONT color="green">168</FONT>                    "ourselves", "out", "outside", "over", "overall", "own", "p",<a name="line.168"></a>
+<FONT color="green">169</FONT>                    "particular", "particularly", "per", "perhaps", "placed", "please",<a name="line.169"></a>
+<FONT color="green">170</FONT>                    "plus", "possible", "presumably", "probably", "provides", "q",<a name="line.170"></a>
+<FONT color="green">171</FONT>                    "que", "quite", "qv", "r", "rather", "rd", "re", "really",<a name="line.171"></a>
+<FONT color="green">172</FONT>                    "reasonably", "regarding", "regardless", "regards", "relatively",<a name="line.172"></a>
+<FONT color="green">173</FONT>                    "respectively", "right", "s", "said", "same", "saw", "say",<a name="line.173"></a>
+<FONT color="green">174</FONT>                    "saying", "says", "second", "secondly", "see", "seeing", "seem",<a name="line.174"></a>
+<FONT color="green">175</FONT>                    "seemed", "seeming", "seems", "seen", "self", "selves", "sensible",<a name="line.175"></a>
+<FONT color="green">176</FONT>                    "sent", "serious", "seriously", "seven", "several", "shall", "she",<a name="line.176"></a>
+<FONT color="green">177</FONT>                    "should", "shouldn't", "since", "six", "so", "some", "somebody",<a name="line.177"></a>
+<FONT color="green">178</FONT>                    "somehow", "someone", "something", "sometime", "sometimes",<a name="line.178"></a>
+<FONT color="green">179</FONT>                    "somewhat", "somewhere", "soon", "sorry", "specified", "specify",<a name="line.179"></a>
+<FONT color="green">180</FONT>                    "specifying", "still", "sub", "such", "sup", "sure", "t", "t's",<a name="line.180"></a>
+<FONT color="green">181</FONT>                    "take", "taken", "tell", "tends", "th", "than", "thank", "thanks",<a name="line.181"></a>
+<FONT color="green">182</FONT>                    "thanx", "that", "that's", "thats", "the", "their", "theirs",<a name="line.182"></a>
+<FONT color="green">183</FONT>                    "them", "themselves", "then", "thence", "there", "there's",<a name="line.183"></a>
+<FONT color="green">184</FONT>                    "thereafter", "thereby", "therefore", "therein", "theres",<a name="line.184"></a>
+<FONT color="green">185</FONT>                    "thereupon", "these", "they", "they'd", "they'll", "they're",<a name="line.185"></a>
+<FONT color="green">186</FONT>                    "they've", "think", "third", "this", "thorough", "thoroughly",<a name="line.186"></a>
+<FONT color="green">187</FONT>                    "those", "though", "three", "through", "throughout", "thru",<a name="line.187"></a>
+<FONT color="green">188</FONT>                    "thus", "to", "together", "too", "took", "toward", "towards",<a name="line.188"></a>
+<FONT color="green">189</FONT>                    "tried", "tries", "truly", "try", "trying", "twice", "two", "u",<a name="line.189"></a>
+<FONT color="green">190</FONT>                    "un", "under", "unfortunately", "unless", "unlikely", "until",<a name="line.190"></a>
+<FONT color="green">191</FONT>                    "unto", "up", "upon", "us", "use", "used", "useful", "uses",<a name="line.191"></a>
+<FONT color="green">192</FONT>                    "using", "usually", "uucp", "v", "value", "various", "very", "via",<a name="line.192"></a>
+<FONT color="green">193</FONT>                    "viz", "vs", "w", "want", "wants", "was", "wasn't", "way", "we",<a name="line.193"></a>
+<FONT color="green">194</FONT>                    "we'd", "we'll", "we're", "we've", "welcome", "well", "went",<a name="line.194"></a>
+<FONT color="green">195</FONT>                    "were", "weren't", "what", "what's", "whatever", "when", "whence",<a name="line.195"></a>
+<FONT color="green">196</FONT>                    "whenever", "where", "where's", "whereafter", "whereas", "whereby",<a name="line.196"></a>
+<FONT color="green">197</FONT>                    "wherein", "whereupon", "wherever", "whether", "which", "while",<a name="line.197"></a>
+<FONT color="green">198</FONT>                    "whither", "who", "who's", "whoever", "whole", "whom", "whose",<a name="line.198"></a>
+<FONT color="green">199</FONT>                    "why", "will", "willing", "wish", "with", "within", "without",<a name="line.199"></a>
+<FONT color="green">200</FONT>                    "won't", "wonder", "would", "wouldn't", "x", "y", "yes", "yet",<a name="line.200"></a>
+<FONT color="green">201</FONT>                    "you", "you'd", "you'll", "you're", "you've", "your", "yours",<a name="line.201"></a>
+<FONT color="green">202</FONT>                    "yourself", "yourselves", "z", "zero", "albeit", "author", "av",<a name="line.202"></a>
+<FONT color="green">203</FONT>                    "canst", "cf", "cfrd", "choose", "conducted", "considered",<a name="line.203"></a>
+<FONT color="green">204</FONT>                    "contrariwise", "cos", "crd", "cu", "day", "describes", "designed",<a name="line.204"></a>
+<FONT color="green">205</FONT>                    "determine", "determined", "discussed", "dost", "doth", "double",<a name="line.205"></a>
+<FONT color="green">206</FONT>                    "dual", "due", "excepted", "excepting", "exception", "exclude",<a name="line.206"></a>
+<FONT color="green">207</FONT>                    "excluding", "exclusive", "farther", "farthest", "ff", "forward",<a name="line.207"></a>
+<FONT color="green">208</FONT>                    "found", "front", "furthest", "general", "halves", "hast", "hath",<a name="line.208"></a>
+<FONT color="green">209</FONT>                    "henceforth", "hereabouts", "hereto", "hindmost", "hitherto",<a name="line.209"></a>
+<FONT color="green">210</FONT>                    "howsoever", "I", "include", "included", "including", "indoors",<a name="line.210"></a>
+<FONT color="green">211</FONT>                    "inside", "insomuch", "investigated", "inwards", "kind", "kg",<a name="line.211"></a>
+<FONT color="green">212</FONT>                    "km", "made", "meantime", "mr", "mrs", "ms", "nonetheless", "nope",<a name="line.212"></a>
+<FONT color="green">213</FONT>                    "notwithstandi", "ng", "nowadays", "obtained", "performance",<a name="line.213"></a>
+<FONT color="green">214</FONT>                    "performed", "plenty", "present", "presented", "presents",<a name="line.214"></a>
+<FONT color="green">215</FONT>                    "provide", "provided", "related", "report", "required", "results",<a name="line.215"></a>
+<FONT color="green">216</FONT>                    "round", "sake", "sang", "save", "seldom", "selected", "sfrd",<a name="line.216"></a>
+<FONT color="green">217</FONT>                    "shalt", "shown", "sideways", "significant", "slept", "slew",<a name="line.217"></a>
+<FONT color="green">218</FONT>                    "slung", "slunk", "smote", "spake", "spat", "spoke", "spoken",<a name="line.218"></a>
+<FONT color="green">219</FONT>                    "sprang", "sprung", "srd", "stave", "staves", "studies",<a name="line.219"></a>
+<FONT color="green">220</FONT>                    "supposing", "tested", "thee", "thenceforth", "thereabout",<a name="line.220"></a>
+<FONT color="green">221</FONT>                    "thereabouts", "thereof", "thereon", "thereto", "thou", "thrice",<a name="line.221"></a>
+<FONT color="green">222</FONT>                    "thy", "thyself", "till", "types", "unable", "underneath",<a name="line.222"></a>
+<FONT color="green">223</FONT>                    "unlike", "upward", "upwards", "week", "whatsoever", "whensoever",<a name="line.223"></a>
+<FONT color="green">224</FONT>                    "whereabouts", "whereat", "wherefore", "wherefrom", "whereinto",<a name="line.224"></a>
+<FONT color="green">225</FONT>                    "whereof", "whereon", "wheresoever", "whereto", "whereunto",<a name="line.225"></a>
+<FONT color="green">226</FONT>                    "wherewith", "whew", "whichever", "whichsoevr", "whilst", "whoa",<a name="line.226"></a>
+<FONT color="green">227</FONT>                    "whomever", "whomsoever", "whosoever", "wilt", "worse", "worst",<a name="line.227"></a>
+<FONT color="green">228</FONT>                    "wow", "ye", "year", "yippee",<a name="line.228"></a>
+<FONT color="green">229</FONT>                    //Also include puntuation<a name="line.229"></a>
+<FONT color="green">230</FONT>                    ",", ";", ".", ":", "_", "{", "}", "[", "]", "+", "*", "¡", "¿", "?", "=", ")", "(", "/", "&amp;", "%", "$", "·"<a name="line.230"></a>
+<FONT color="green">231</FONT>                    };<a name="line.231"></a>
+<FONT color="green">232</FONT>    <a name="line.232"></a>
+<FONT color="green">233</FONT>        static Set&lt;String&gt; stopWordSet = new HashSet&lt;String&gt;(java.util.Arrays.asList(stopWords));<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>    }<a name="line.235"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,134 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.reuse.classification;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import static jcolibri.util.CopyUtils.copyCaseComponent;<a name="line.3"></a>
+<FONT color="green">004</FONT>    <a name="line.4"></a>
+<FONT color="green">005</FONT>    import java.util.Collection;<a name="line.5"></a>
+<FONT color="green">006</FONT>    <a name="line.6"></a>
+<FONT color="green">007</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.7"></a>
+<FONT color="green">008</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.8"></a>
+<FONT color="green">009</FONT>    import jcolibri.extensions.classification.ClassificationSolution;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import jcolibri.method.retrieve.RetrievalResult;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    import org.apache.commons.logging.LogFactory;<a name="line.12"></a>
+<FONT color="green">013</FONT>    <a name="line.13"></a>
+<FONT color="green">014</FONT>    /**<a name="line.14"></a>
+<FONT color="green">015</FONT>     * Provides the ability to classify a query by predicting its<a name="line.15"></a>
+<FONT color="green">016</FONT>     * solution from supplied cases.<a name="line.16"></a>
+<FONT color="green">017</FONT>     * <a name="line.17"></a>
+<FONT color="green">018</FONT>     * @author Derek Bridge<a name="line.18"></a>
+<FONT color="green">019</FONT>     * @author Lisa Cummins<a name="line.19"></a>
+<FONT color="green">020</FONT>     * 16/05/07<a name="line.20"></a>
+<FONT color="green">021</FONT>     */<a name="line.21"></a>
+<FONT color="green">022</FONT>    public abstract class AbstractKNNClassificationMethod implements KNNClassificationMethod<a name="line.22"></a>
+<FONT color="green">023</FONT>    {<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>        /**<a name="line.25"></a>
+<FONT color="green">026</FONT>         * Gets the predicted solution of the given cases according <a name="line.26"></a>
+<FONT color="green">027</FONT>         * to the classification type.<a name="line.27"></a>
+<FONT color="green">028</FONT>         * @param cases a list of cases along with similarity scores.<a name="line.28"></a>
+<FONT color="green">029</FONT>         * @return Returns the predicted solution.<a name="line.29"></a>
+<FONT color="green">030</FONT>         */<a name="line.30"></a>
+<FONT color="green">031</FONT>        public abstract ClassificationSolution getPredictedSolution(Collection&lt;RetrievalResult&gt; cases);<a name="line.31"></a>
+<FONT color="green">032</FONT>        <a name="line.32"></a>
+<FONT color="green">033</FONT>        /**<a name="line.33"></a>
+<FONT color="green">034</FONT>         * Gets the predicted solution of the given cases according <a name="line.34"></a>
+<FONT color="green">035</FONT>         * to the classification type and returns a case that has the<a name="line.35"></a>
+<FONT color="green">036</FONT>         * query description and the predicted solution.<a name="line.36"></a>
+<FONT color="green">037</FONT>         * @param query the query.<a name="line.37"></a>
+<FONT color="green">038</FONT>         * @param cases a list of cases along with similarity scores.<a name="line.38"></a>
+<FONT color="green">039</FONT>         * @return Returns a case with the query description as its <a name="line.39"></a>
+<FONT color="green">040</FONT>         * description and the predicted solution as its solution. <a name="line.40"></a>
+<FONT color="green">041</FONT>         */<a name="line.41"></a>
+<FONT color="green">042</FONT>        public CBRCase getPredictedCase(CBRQuery query, Collection&lt;RetrievalResult&gt; cases)<a name="line.42"></a>
+<FONT color="green">043</FONT>        {<a name="line.43"></a>
+<FONT color="green">044</FONT>            CBRCase queryWithPredSoln = null;<a name="line.44"></a>
+<FONT color="green">045</FONT>            <a name="line.45"></a>
+<FONT color="green">046</FONT>            if(cases.size() &gt; 0)<a name="line.46"></a>
+<FONT color="green">047</FONT>            {       //Make a copy of any case. This will be used as <a name="line.47"></a>
+<FONT color="green">048</FONT>                    //the query with its predicted solution.<a name="line.48"></a>
+<FONT color="green">049</FONT>                    CBRCase c = cases.iterator().next().get_case();  <a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>                    try {<a name="line.51"></a>
+<FONT color="green">052</FONT>                                    queryWithPredSoln = c.getClass().newInstance();<a name="line.52"></a>
+<FONT color="green">053</FONT>                            } catch (Exception e) {<a name="line.53"></a>
+<FONT color="green">054</FONT>                                    LogFactory.getLog(this.getClass()).error(e);<a name="line.54"></a>
+<FONT color="green">055</FONT>                            }<a name="line.55"></a>
+<FONT color="green">056</FONT>                    <a name="line.56"></a>
+<FONT color="green">057</FONT>                    queryWithPredSoln.setDescription(copyCaseComponent(query.getDescription()));<a name="line.57"></a>
+<FONT color="green">058</FONT>                    <a name="line.58"></a>
+<FONT color="green">059</FONT>                    ClassificationSolution predSolution = getPredictedSolution(cases);<a name="line.59"></a>
+<FONT color="green">060</FONT>                    queryWithPredSoln.setSolution(predSolution);<a name="line.60"></a>
+<FONT color="green">061</FONT>                    <a name="line.61"></a>
+<FONT color="green">062</FONT>                    queryWithPredSoln.setJustificationOfSolution(null);<a name="line.62"></a>
+<FONT color="green">063</FONT>                    <a name="line.63"></a>
+<FONT color="green">064</FONT>                    queryWithPredSoln.setResult(null);<a name="line.64"></a>
+<FONT color="green">065</FONT>            }<a name="line.65"></a>
+<FONT color="green">066</FONT>                return queryWithPredSoln;<a name="line.66"></a>
+<FONT color="green">067</FONT>        }<a name="line.67"></a>
+<FONT color="green">068</FONT>    }<a name="line.68"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,185 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * TestLucene.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 10/04/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.extensions.textual.lucene;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.io.File;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.io.IOException;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import java.util.Collection;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import javax.swing.JFileChooser;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.datatypes.Text;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.extensions.textual.wordnet.WordNetBridge;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    /**<a name="line.21"></a>
+<FONT color="green">022</FONT>     * Class used to test and learn how to use Lucene.<a name="line.22"></a>
+<FONT color="green">023</FONT>     * It reads documents from a directory and indexes them. Then allows to ask for documents.<a name="line.23"></a>
+<FONT color="green">024</FONT>     * &lt;p&gt;<a name="line.24"></a>
+<FONT color="green">025</FONT>     * To avoid memory problems use the -Xms -Xmx VM params. For example to use a max of 1Gb of memory use: -Xms256m -Xmx1024m <a name="line.25"></a>
+<FONT color="green">026</FONT>     * @author Juan A. Recio-García<a name="line.26"></a>
+<FONT color="green">027</FONT>     * @version 1.0<a name="line.27"></a>
+<FONT color="green">028</FONT>     */<a name="line.28"></a>
+<FONT color="green">029</FONT>    public class TestLucene {<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>            //Documents only have a field<a name="line.31"></a>
+<FONT color="green">032</FONT>            private static String CONTENT_FIELD = "content";<a name="line.32"></a>
+<FONT color="green">033</FONT>            <a name="line.33"></a>
+<FONT color="green">034</FONT>            /** Transforms files to Lucene documents. */<a name="line.34"></a>
+<FONT color="green">035</FONT>            private static Collection&lt;LuceneDocument&gt; indexDocs(File directory) throws IOException {<a name="line.35"></a>
+<FONT color="green">036</FONT>                <a name="line.36"></a>
+<FONT color="green">037</FONT>                    java.util.ArrayList&lt;LuceneDocument&gt; docs = new java.util.ArrayList&lt;LuceneDocument&gt;();<a name="line.37"></a>
+<FONT color="green">038</FONT>                    <a name="line.38"></a>
+<FONT color="green">039</FONT>                if (!directory.canRead())<a name="line.39"></a>
+<FONT color="green">040</FONT>                    return docs;<a name="line.40"></a>
+<FONT color="green">041</FONT>                <a name="line.41"></a>
+<FONT color="green">042</FONT>                if (!directory.isDirectory())<a name="line.42"></a>
+<FONT color="green">043</FONT>                    return docs;<a name="line.43"></a>
+<FONT color="green">044</FONT>                <a name="line.44"></a>
+<FONT color="green">045</FONT>                File[] files = directory.listFiles();<a name="line.45"></a>
+<FONT color="green">046</FONT>                <a name="line.46"></a>
+<FONT color="green">047</FONT>                for(File f: files)<a name="line.47"></a>
+<FONT color="green">048</FONT>                {<a name="line.48"></a>
+<FONT color="green">049</FONT>                    if(f.isDirectory())<a name="line.49"></a>
+<FONT color="green">050</FONT>                            continue;<a name="line.50"></a>
+<FONT color="green">051</FONT>                    java.io.BufferedReader fr = new java.io.BufferedReader(new java.io.FileReader(f));<a name="line.51"></a>
+<FONT color="green">052</FONT>                    StringBuffer sb = new StringBuffer();<a name="line.52"></a>
+<FONT color="green">053</FONT>                    while (fr.ready())<a name="line.53"></a>
+<FONT color="green">054</FONT>                            sb.append(fr.readLine());<a name="line.54"></a>
+<FONT color="green">055</FONT>                        fr.close();<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>                            <a name="line.57"></a>
+<FONT color="green">058</FONT>                    LuceneDocument doc = new LuceneDocument(f.getCanonicalPath());<a name="line.58"></a>
+<FONT color="green">059</FONT>                    doc.addContentField(CONTENT_FIELD, new Text(sb.toString()));<a name="line.59"></a>
+<FONT color="green">060</FONT>                    <a name="line.60"></a>
+<FONT color="green">061</FONT>                    docs.add(doc);  <a name="line.61"></a>
+<FONT color="green">062</FONT>                }<a name="line.62"></a>
+<FONT color="green">063</FONT>                <a name="line.63"></a>
+<FONT color="green">064</FONT>                return docs;<a name="line.64"></a>
+<FONT color="green">065</FONT>                   <a name="line.65"></a>
+<FONT color="green">066</FONT>              }<a name="line.66"></a>
+<FONT color="green">067</FONT>    <a name="line.67"></a>
+<FONT color="green">068</FONT>            <a name="line.68"></a>
+<FONT color="green">069</FONT>            /**<a name="line.69"></a>
+<FONT color="green">070</FONT>             * @param args<a name="line.70"></a>
+<FONT color="green">071</FONT>             */<a name="line.71"></a>
+<FONT color="green">072</FONT>            public static void main(String[] args) {<a name="line.72"></a>
+<FONT color="green">073</FONT>                    <a name="line.73"></a>
+<FONT color="green">074</FONT>                    //Obtain the files<a name="line.74"></a>
+<FONT color="green">075</FONT>                    <a name="line.75"></a>
+<FONT color="green">076</FONT>                    JFileChooser jfc = new javax.swing.JFileChooser();<a name="line.76"></a>
+<FONT color="green">077</FONT>                    jfc.setDialogType(JFileChooser.OPEN_DIALOG);<a name="line.77"></a>
+<FONT color="green">078</FONT>                    jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);<a name="line.78"></a>
+<FONT color="green">079</FONT>                    <a name="line.79"></a>
+<FONT color="green">080</FONT>                    jfc.showOpenDialog(null);<a name="line.80"></a>
+<FONT color="green">081</FONT>                    File docDir = jfc.getSelectedFile();<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>                    if (!docDir.exists() || !docDir.canRead()) {<a name="line.83"></a>
+<FONT color="green">084</FONT>                  System.out.println("Document directory '" +docDir.getAbsolutePath()+ "' does not exist or is not readable, please check the path");<a name="line.84"></a>
+<FONT color="green">085</FONT>                  System.exit(1);<a name="line.85"></a>
+<FONT color="green">086</FONT>                }<a name="line.86"></a>
+<FONT color="green">087</FONT>                <a name="line.87"></a>
+<FONT color="green">088</FONT>                    //Transform the files to Lucene documents<a name="line.88"></a>
+<FONT color="green">089</FONT>                    <a name="line.89"></a>
+<FONT color="green">090</FONT>                    Collection&lt;LuceneDocument&gt; docs = null;;<a name="line.90"></a>
+<FONT color="green">091</FONT>                    try {<a name="line.91"></a>
+<FONT color="green">092</FONT>                            docs = indexDocs(docDir);<a name="line.92"></a>
+<FONT color="green">093</FONT>                    } catch (IOException e) {<a name="line.93"></a>
+<FONT color="green">094</FONT>                            org.apache.commons.logging.LogFactory.getLog(WordNetBridge.class).error(e);<a name="line.94"></a>
+<FONT color="green">095</FONT>                    }<a name="line.95"></a>
+<FONT color="green">096</FONT>                    <a name="line.96"></a>
+<FONT color="green">097</FONT>                    try {<a name="line.97"></a>
+<FONT color="green">098</FONT>                            <a name="line.98"></a>
+<FONT color="green">099</FONT>                            // Create the Lucene Index<a name="line.99"></a>
+<FONT color="green">100</FONT>                            LuceneIndex index = new LuceneIndex(docs);<a name="line.100"></a>
+<FONT color="green">101</FONT>                            <a name="line.101"></a>
+<FONT color="green">102</FONT>                            // Ask for a query<a name="line.102"></a>
+<FONT color="green">103</FONT>                            String query = javax.swing.JOptionPane.showInputDialog("Query?");<a name="line.103"></a>
+<FONT color="green">104</FONT>                            <a name="line.104"></a>
+<FONT color="green">105</FONT>                            // Search<a name="line.105"></a>
+<FONT color="green">106</FONT>                            LuceneSearchResult lsr = LuceneSearcher.search(index, query, CONTENT_FIELD);<a name="line.106"></a>
+<FONT color="green">107</FONT>                            <a name="line.107"></a>
+<FONT color="green">108</FONT>                            // Print results<a name="line.108"></a>
+<FONT color="green">109</FONT>                            System.out.println("Results: "+lsr.getResultLength());<a name="line.109"></a>
+<FONT color="green">110</FONT>                            for(int i=0; i&lt;lsr.getResultLength(); i++)<a name="line.110"></a>
+<FONT color="green">111</FONT>                            {<a name="line.111"></a>
+<FONT color="green">112</FONT>                                    System.out.println(lsr.getDocScore(i,true)+" -&gt; "+lsr.getDocAt(i).getDocID());<a name="line.112"></a>
+<FONT color="green">113</FONT>                            }<a name="line.113"></a>
+<FONT color="green">114</FONT>                    } catch (OutOfMemoryError e) {<a name="line.114"></a>
+<FONT color="green">115</FONT>                            org.apache.commons.logging.LogFactory.getLog(WordNetBridge.class).error("Lucene requires more memory. Launch the JVM with these flags: java -Xms256m -Xmx512m ...");<a name="line.115"></a>
+<FONT color="green">116</FONT>                    }<a name="line.116"></a>
+<FONT color="green">117</FONT>            }<a name="line.117"></a>
+<FONT color="green">118</FONT>    <a name="line.118"></a>
+<FONT color="green">119</FONT>    }<a name="line.119"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

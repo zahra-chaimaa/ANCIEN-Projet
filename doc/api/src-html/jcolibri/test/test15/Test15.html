@@ -1,0 +1,155 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.test.test15;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import jcolibri.cbrcore.Attribute;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import jcolibri.evaluation.Evaluator;<a name="line.4"></a>
+<FONT color="green">005</FONT>    import jcolibri.evaluation.evaluators.SameSplitEvaluator;<a name="line.5"></a>
+<FONT color="green">006</FONT>    import jcolibri.extensions.maintenance_evaluation.DetailedEvaluationReport;<a name="line.6"></a>
+<FONT color="green">007</FONT>    import jcolibri.extensions.maintenance_evaluation.evaluators.MaintenanceHoldOutEvaluator;<a name="line.7"></a>
+<FONT color="green">008</FONT>    import jcolibri.extensions.maintenance_evaluation.evaluators.MaintenanceSameSplitEvaluator;<a name="line.8"></a>
+<FONT color="green">009</FONT>    import jcolibri.method.maintenance.algorithms.BBNRNoiseReduction;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.global.Average;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import jcolibri.method.reuse.classification.KNNClassificationConfig;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import jcolibri.method.reuse.classification.SimilarityWeightedVotingMethod;<a name="line.13"></a>
+<FONT color="green">014</FONT>    <a name="line.14"></a>
+<FONT color="green">015</FONT>    /**<a name="line.15"></a>
+<FONT color="green">016</FONT>     * This example shows how to evaluate a dataset at the same time <a name="line.16"></a>
+<FONT color="green">017</FONT>     * with respect to its accuracy before and after maintenance. The dataset<a name="line.17"></a>
+<FONT color="green">018</FONT>     * is split, and it is evaluated. Then it is edited by a maintenance algorithm,<a name="line.18"></a>
+<FONT color="green">019</FONT>     * and reevaluated. The results are stored to file.<a name="line.19"></a>
+<FONT color="green">020</FONT>     * <a name="line.20"></a>
+<FONT color="green">021</FONT>     * It uses a CBR application (a StandardCBRApplication implementation) <a name="line.21"></a>
+<FONT color="green">022</FONT>     * that must store its results in the DetailedEvaluationReport.<a name="line.22"></a>
+<FONT color="green">023</FONT>     * <a name="line.23"></a>
+<FONT color="green">024</FONT>     * @author Lisa Cummins<a name="line.24"></a>
+<FONT color="green">025</FONT>     * @version 1.0<a name="line.25"></a>
+<FONT color="green">026</FONT>     * <a name="line.26"></a>
+<FONT color="green">027</FONT>     */<a name="line.27"></a>
+<FONT color="green">028</FONT>    public class Test15 <a name="line.28"></a>
+<FONT color="green">029</FONT>    {<a name="line.29"></a>
+<FONT color="green">030</FONT>            /**<a name="line.30"></a>
+<FONT color="green">031</FONT>             * Runs the example to compute accuracy before and after a case-base maintenance<a name="line.31"></a>
+<FONT color="green">032</FONT>             * algorithm is run on the dataset. <a name="line.32"></a>
+<FONT color="green">033</FONT>             * @param args<a name="line.33"></a>
+<FONT color="green">034</FONT>             */<a name="line.34"></a>
+<FONT color="green">035</FONT>            public static void main(String[] args) <a name="line.35"></a>
+<FONT color="green">036</FONT>            {       // Configure KNN<a name="line.36"></a>
+<FONT color="green">037</FONT>                    KNNClassificationConfig irisSimConfig = new KNNClassificationConfig();<a name="line.37"></a>
+<FONT color="green">038</FONT>                    <a name="line.38"></a>
+<FONT color="green">039</FONT>                    irisSimConfig.setDescriptionSimFunction(new Average());<a name="line.39"></a>
+<FONT color="green">040</FONT>                    irisSimConfig.addMapping(new Attribute("sepalLength",IrisDescription.class), new Interval(3.6));<a name="line.40"></a>
+<FONT color="green">041</FONT>                    irisSimConfig.addMapping(new Attribute("sepalWidth",IrisDescription.class), new Interval(2.4));<a name="line.41"></a>
+<FONT color="green">042</FONT>                    irisSimConfig.addMapping(new Attribute("petalLength",IrisDescription.class), new Interval(5.9));<a name="line.42"></a>
+<FONT color="green">043</FONT>                    irisSimConfig.addMapping(new Attribute("petalWidth", IrisDescription.class), new Interval(2.4));<a name="line.43"></a>
+<FONT color="green">044</FONT>                    irisSimConfig.setClassificationMethod(new SimilarityWeightedVotingMethod());<a name="line.44"></a>
+<FONT color="green">045</FONT>                    irisSimConfig.setK(3);<a name="line.45"></a>
+<FONT color="green">046</FONT>                    <a name="line.46"></a>
+<FONT color="green">047</FONT>                    //SwingProgressBar shows the progress<a name="line.47"></a>
+<FONT color="green">048</FONT>                    jcolibri.util.ProgressController.clear();<a name="line.48"></a>
+<FONT color="green">049</FONT>                    jcolibri.util.ProgressController.register(new jcolibri.test.main.SwingProgressBar(), MaintenanceSameSplitEvaluator.class);<a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>                    int splitPercent = 30;<a name="line.51"></a>
+<FONT color="green">052</FONT>                    <a name="line.52"></a>
+<FONT color="green">053</FONT>                    // Example of the Same-Split Hold-Out evaluation<a name="line.53"></a>
+<FONT color="green">054</FONT>                    SameSplitEvaluator split = new SameSplitEvaluator();<a name="line.54"></a>
+<FONT color="green">055</FONT>                    split.init(new IrisEvaluableApp());<a name="line.55"></a>
+<FONT color="green">056</FONT>                    split.generateSplit(splitPercent, "split.txt");<a name="line.56"></a>
+<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">058</FONT>                    //Run the evaluation on the original dataset<a name="line.58"></a>
+<FONT color="green">059</FONT>                    MaintenanceSameSplitEvaluator eval = new MaintenanceSameSplitEvaluator();<a name="line.59"></a>
+<FONT color="green">060</FONT>                    eval.init(new IrisEvaluableApp());<a name="line.60"></a>
+<FONT color="green">061</FONT>                    eval.HoldOutfromFile("split.txt");<a name="line.61"></a>
+<FONT color="green">062</FONT>                    Double avgCost = ((DetailedEvaluationReport)(Evaluator.getEvaluationReport())).<a name="line.62"></a>
+<FONT color="green">063</FONT>                            getAverageOfQueryDataSeries(IrisEvaluableApp.DATA_SERIES_NAME);<a name="line.63"></a>
+<FONT color="green">064</FONT>                    Double percentAccuracy = (1.0 - avgCost) * 100;<a name="line.64"></a>
+<FONT color="green">065</FONT>                    Evaluator.getEvaluationReport().putOtherData(IrisEvaluableApp.DATA_SERIES_NAME + <a name="line.65"></a>
+<FONT color="green">066</FONT>                            " Accuracy", "" + percentAccuracy + "%");<a name="line.66"></a>
+<FONT color="green">067</FONT>                    <a name="line.67"></a>
+<FONT color="green">068</FONT>                    // Maintain CB and re-run evaluation<a name="line.68"></a>
+<FONT color="green">069</FONT>                    eval = new MaintenanceSameSplitEvaluator();<a name="line.69"></a>
+<FONT color="green">070</FONT>                    eval.init(new IrisMaintainedEvaluableApp(irisSimConfig), new BBNRNoiseReduction(), irisSimConfig);<a name="line.70"></a>
+<FONT color="green">071</FONT>                    eval.HoldOutfromFile("split.txt");<a name="line.71"></a>
+<FONT color="green">072</FONT>                    avgCost = ((DetailedEvaluationReport)(Evaluator.getEvaluationReport())).<a name="line.72"></a>
+<FONT color="green">073</FONT>                            getAverageOfQueryDataSeries(IrisMaintainedEvaluableApp.DATA_SERIES_NAME);<a name="line.73"></a>
+<FONT color="green">074</FONT>                    percentAccuracy = (1.0 - avgCost) * 100;<a name="line.74"></a>
+<FONT color="green">075</FONT>                    Evaluator.getEvaluationReport().putOtherData(IrisMaintainedEvaluableApp.DATA_SERIES_NAME + <a name="line.75"></a>
+<FONT color="green">076</FONT>                            " Accuracy", "" + percentAccuracy + "%");<a name="line.76"></a>
+<FONT color="green">077</FONT>                    double avgPercentReduced = ((DetailedEvaluationReport)(Evaluator.getEvaluationReport())).<a name="line.77"></a>
+<FONT color="green">078</FONT>                            getAverageOfDataSeries(MaintenanceHoldOutEvaluator.PERCENT_REDUCED);<a name="line.78"></a>
+<FONT color="green">079</FONT>                    Evaluator.getEvaluationReport().putOtherData(IrisMaintainedEvaluableApp.DATA_SERIES_NAME + <a name="line.79"></a>
+<FONT color="green">080</FONT>                            " CB Reduction", "" + avgPercentReduced + "%");<a name="line.80"></a>
+<FONT color="green">081</FONT>                    ((DetailedEvaluationReport)(Evaluator.getEvaluationReport())).<a name="line.81"></a>
+<FONT color="green">082</FONT>                            removeDataSeries(MaintenanceHoldOutEvaluator.PERCENT_REDUCED);<a name="line.82"></a>
+<FONT color="green">083</FONT>                    <a name="line.83"></a>
+<FONT color="green">084</FONT>                    //Print the results to screen and to file<a name="line.84"></a>
+<FONT color="green">085</FONT>                    System.out.println(Evaluator.getEvaluationReport());<a name="line.85"></a>
+<FONT color="green">086</FONT>                    ((DetailedEvaluationReport)(Evaluator.getEvaluationReport())).printDetailedEvaluationReport(<a name="line.86"></a>
+<FONT color="green">087</FONT>                            "results.txt");<a name="line.87"></a>
+<FONT color="green">088</FONT>            }<a name="line.88"></a>
+<FONT color="green">089</FONT>    }<a name="line.89"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,104 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.maintenance;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Collection;<a name="line.3"></a>
+<FONT color="green">004</FONT>    <a name="line.4"></a>
+<FONT color="green">005</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.5"></a>
+<FONT color="green">006</FONT>    import jcolibri.cbrcore.CBRCaseBase;<a name="line.6"></a>
+<FONT color="green">007</FONT>    import jcolibri.method.reuse.classification.KNNClassificationConfig;<a name="line.7"></a>
+<FONT color="green">008</FONT>    <a name="line.8"></a>
+<FONT color="green">009</FONT>    /**<a name="line.9"></a>
+<FONT color="green">010</FONT>     * Provides the ability to run a case base editing algorithm on<a name="line.10"></a>
+<FONT color="green">011</FONT>     * a case base.<a name="line.11"></a>
+<FONT color="green">012</FONT>     * <a name="line.12"></a>
+<FONT color="green">013</FONT>     * @author Lisa Cummins<a name="line.13"></a>
+<FONT color="green">014</FONT>     * @author Derek Bridge<a name="line.14"></a>
+<FONT color="green">015</FONT>     * 18/05/07<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    public abstract class AbstractCaseBaseEditMethod {<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>            /**<a name="line.19"></a>
+<FONT color="green">020</FONT>             * Simulates a case base editing algorithm, returning the cases<a name="line.20"></a>
+<FONT color="green">021</FONT>             * that would be deleted by the algorithm.<a name="line.21"></a>
+<FONT color="green">022</FONT>             * @param cases The group of cases on which to perform editing.<a name="line.22"></a>
+<FONT color="green">023</FONT>             * @param simConfig The similarity configuration for these cases.<a name="line.23"></a>
+<FONT color="green">024</FONT>             * @return the list of cases that would be deleted by the algorithm.<a name="line.24"></a>
+<FONT color="green">025</FONT>             */<a name="line.25"></a>
+<FONT color="green">026</FONT>            public abstract Collection&lt;CBRCase&gt; retrieveCasesToDelete(Collection&lt;CBRCase&gt; cases, KNNClassificationConfig simConfig);<a name="line.26"></a>
+<FONT color="green">027</FONT>            <a name="line.27"></a>
+<FONT color="green">028</FONT>            /**<a name="line.28"></a>
+<FONT color="green">029</FONT>             * Runs a case base editing algorithm on the given case base.<a name="line.29"></a>
+<FONT color="green">030</FONT>             * @param caseBase The case base on which to perform editing.<a name="line.30"></a>
+<FONT color="green">031</FONT>             * @param simConfig The similarity configuration for the case<a name="line.31"></a>
+<FONT color="green">032</FONT>             * base.<a name="line.32"></a>
+<FONT color="green">033</FONT>             */<a name="line.33"></a>
+<FONT color="green">034</FONT>            public void edit(CBRCaseBase caseBase, KNNClassificationConfig simConfig)<a name="line.34"></a>
+<FONT color="green">035</FONT>            {       Collection&lt;CBRCase&gt; casesToDelete = retrieveCasesToDelete(caseBase.getCases(), simConfig);<a name="line.35"></a>
+<FONT color="green">036</FONT>                    caseBase.forgetCases(casesToDelete);<a name="line.36"></a>
+<FONT color="green">037</FONT>            }<a name="line.37"></a>
+<FONT color="green">038</FONT>    }<a name="line.38"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

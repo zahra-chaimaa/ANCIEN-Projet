@@ -1,0 +1,213 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.maintenance;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Collection;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.util.HashMap;<a name="line.4"></a>
+<FONT color="green">005</FONT>    import java.util.Iterator;<a name="line.5"></a>
+<FONT color="green">006</FONT>    import java.util.LinkedList;<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.8"></a>
+<FONT color="green">009</FONT>    import jcolibri.method.retrieve.RetrievalResult;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import jcolibri.method.retrieve.KNNretrieval.KNNConfig;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import jcolibri.method.retrieve.KNNretrieval.KNNretrievalMethod;<a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    /**<a name="line.13"></a>
+<FONT color="green">014</FONT>     * Calculates coverage, reachability and liability sets<a name="line.14"></a>
+<FONT color="green">015</FONT>     * <a name="line.15"></a>
+<FONT color="green">016</FONT>     * @author Lisa Cummins<a name="line.16"></a>
+<FONT color="green">017</FONT>     */<a name="line.17"></a>
+<FONT color="green">018</FONT>    public class VotesCalculator {<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>            /**<a name="line.20"></a>
+<FONT color="green">021</FONT>             * Gets all cases retrieved for each of the given cases <a name="line.21"></a>
+<FONT color="green">022</FONT>             */<a name="line.22"></a>
+<FONT color="green">023</FONT>            public HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; getAllRetrievedCasesForWholeCB(Collection&lt;CBRCase&gt; cases, KNNConfig simConfig)<a name="line.23"></a>
+<FONT color="green">024</FONT>            {       HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; retrievedCases = new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;(); <a name="line.24"></a>
+<FONT color="green">025</FONT>                                    <a name="line.25"></a>
+<FONT color="green">026</FONT>                    LinkedList&lt;CBRCase&gt; caseList = new LinkedList&lt;CBRCase&gt;();<a name="line.26"></a>
+<FONT color="green">027</FONT>                    for(Iterator&lt;CBRCase&gt; caseIter = cases.iterator(); caseIter.hasNext();)<a name="line.27"></a>
+<FONT color="green">028</FONT>                    {       caseList.add(caseIter.next());<a name="line.28"></a>
+<FONT color="green">029</FONT>                    }<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>                    for(int i=0; i&lt;caseList.size(); i++)<a name="line.31"></a>
+<FONT color="green">032</FONT>                    {       CBRCase query = caseList.remove(i);<a name="line.32"></a>
+<FONT color="green">033</FONT>                            <a name="line.33"></a>
+<FONT color="green">034</FONT>                            Collection&lt;RetrievalResult&gt; allRetrieved = KNNretrievalMethod.evaluateSimilarity(cases, query, simConfig);<a name="line.34"></a>
+<FONT color="green">035</FONT>                            <a name="line.35"></a>
+<FONT color="green">036</FONT>                            LinkedList&lt;CBRCase&gt; allCasesRetrieved = new LinkedList&lt;CBRCase&gt;();<a name="line.36"></a>
+<FONT color="green">037</FONT>                            <a name="line.37"></a>
+<FONT color="green">038</FONT>                            for(Iterator&lt;RetrievalResult&gt; cIter = allRetrieved.iterator(); cIter.hasNext(); )<a name="line.38"></a>
+<FONT color="green">039</FONT>                            {       RetrievalResult c = cIter.next();<a name="line.39"></a>
+<FONT color="green">040</FONT>                                    allCasesRetrieved.addLast(c.get_case());<a name="line.40"></a>
+<FONT color="green">041</FONT>                            }<a name="line.41"></a>
+<FONT color="green">042</FONT>                            retrievedCases.put(query, allCasesRetrieved);<a name="line.42"></a>
+<FONT color="green">043</FONT>                            caseList.add(i, query);<a name="line.43"></a>
+<FONT color="green">044</FONT>                    }<a name="line.44"></a>
+<FONT color="green">045</FONT>                    return retrievedCases;<a name="line.45"></a>
+<FONT color="green">046</FONT>            }<a name="line.46"></a>
+<FONT color="green">047</FONT>            <a name="line.47"></a>
+<FONT color="green">048</FONT>            /**<a name="line.48"></a>
+<FONT color="green">049</FONT>             * Gets all cases retrieved for the query in the context<a name="line.49"></a>
+<FONT color="green">050</FONT>             */<a name="line.50"></a>
+<FONT color="green">051</FONT>            public LinkedList&lt;CBRCase&gt; getAllRetrievedCasesForQuery(Collection&lt;CBRCase&gt; cases, CBRCase query, KNNConfig simConfig)<a name="line.51"></a>
+<FONT color="green">052</FONT>            {       LinkedList&lt;CBRCase&gt; retrievedCases = new LinkedList&lt;CBRCase&gt;(); <a name="line.52"></a>
+<FONT color="green">053</FONT>                    <a name="line.53"></a>
+<FONT color="green">054</FONT>                    Collection&lt;RetrievalResult&gt; allRetrieved = KNNretrievalMethod.evaluateSimilarity(cases, query, simConfig);<a name="line.54"></a>
+<FONT color="green">055</FONT>                    for(RetrievalResult c: allRetrieved)<a name="line.55"></a>
+<FONT color="green">056</FONT>                    {       retrievedCases.addLast(c.get_case());<a name="line.56"></a>
+<FONT color="green">057</FONT>    //                      System.out.println("Case: " + c.get_case() + "  Sim: " + c.getEval());<a name="line.57"></a>
+<FONT color="green">058</FONT>                    }<a name="line.58"></a>
+<FONT color="green">059</FONT>                    return retrievedCases;<a name="line.59"></a>
+<FONT color="green">060</FONT>            }<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">062</FONT>            /**<a name="line.62"></a>
+<FONT color="green">063</FONT>             * Gets the top k cases retrieved for each case in the context<a name="line.63"></a>
+<FONT color="green">064</FONT>             */<a name="line.64"></a>
+<FONT color="green">065</FONT>            public HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; getkRetrievedCasesForWholeCB(Collection&lt;CBRCase&gt; cases, KNNConfig simConfig, int k)<a name="line.65"></a>
+<FONT color="green">066</FONT>            {       HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; allRetrievedCases = <a name="line.66"></a>
+<FONT color="green">067</FONT>                            getAllRetrievedCasesForWholeCB(cases, simConfig);<a name="line.67"></a>
+<FONT color="green">068</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; kRetrievedCases = <a name="line.68"></a>
+<FONT color="green">069</FONT>                            new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;();<a name="line.69"></a>
+<FONT color="green">070</FONT>                    for(Iterator&lt;CBRCase&gt; cIter=allRetrievedCases.keySet().iterator(); cIter.hasNext(); )<a name="line.70"></a>
+<FONT color="green">071</FONT>                    {       CBRCase c = cIter.next();<a name="line.71"></a>
+<FONT color="green">072</FONT>                            LinkedList&lt;CBRCase&gt; retrievedForC = allRetrievedCases.get(c);<a name="line.72"></a>
+<FONT color="green">073</FONT>                            <a name="line.73"></a>
+<FONT color="green">074</FONT>                            while(retrievedForC.size()&gt;k)<a name="line.74"></a>
+<FONT color="green">075</FONT>                            {       retrievedForC.removeLast();<a name="line.75"></a>
+<FONT color="green">076</FONT>                            }<a name="line.76"></a>
+<FONT color="green">077</FONT>                            kRetrievedCases.put(c, retrievedForC);<a name="line.77"></a>
+<FONT color="green">078</FONT>                    }<a name="line.78"></a>
+<FONT color="green">079</FONT>                    return kRetrievedCases;<a name="line.79"></a>
+<FONT color="green">080</FONT>            }<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>            /**<a name="line.82"></a>
+<FONT color="green">083</FONT>             * Gets the top k cases retrieved for each case in the context<a name="line.83"></a>
+<FONT color="green">084</FONT>             */<a name="line.84"></a>
+<FONT color="green">085</FONT>            public LinkedList&lt;CBRCase&gt; getkRetrievedCasesForQuery(LinkedList&lt;CBRCase&gt; cases, CBRCase query, KNNConfig simConfig, int k)<a name="line.85"></a>
+<FONT color="green">086</FONT>            {       LinkedList&lt;CBRCase&gt; allRetrievedCases = getAllRetrievedCasesForQuery(cases, query, simConfig);<a name="line.86"></a>
+<FONT color="green">087</FONT>                    <a name="line.87"></a>
+<FONT color="green">088</FONT>                    LinkedList&lt;CBRCase&gt; kRetrievedCases = new LinkedList&lt;CBRCase&gt;();<a name="line.88"></a>
+<FONT color="green">089</FONT>                    <a name="line.89"></a>
+<FONT color="green">090</FONT>                    for(int i=0; i&lt;allRetrievedCases.size() &amp;&amp; i&lt;k; i++ )<a name="line.90"></a>
+<FONT color="green">091</FONT>                    {       kRetrievedCases.add(allRetrievedCases.get(i));<a name="line.91"></a>
+<FONT color="green">092</FONT>                    }<a name="line.92"></a>
+<FONT color="green">093</FONT>                    return kRetrievedCases;<a name="line.93"></a>
+<FONT color="green">094</FONT>            }<a name="line.94"></a>
+<FONT color="green">095</FONT>            <a name="line.95"></a>
+<FONT color="green">096</FONT>            /**<a name="line.96"></a>
+<FONT color="green">097</FONT>             * Classifies the predicted classes of each of the cases based on <a name="line.97"></a>
+<FONT color="green">098</FONT>             * the given retrieved cases for each cases <a name="line.98"></a>
+<FONT color="green">099</FONT>             * @param retrievedCases the cases contributing to the prediction<a name="line.99"></a>
+<FONT color="green">100</FONT>             * for each case<a name="line.100"></a>
+<FONT color="green">101</FONT>             * @return the predicted classes of each of the cases<a name="line.101"></a>
+<FONT color="green">102</FONT>             */<a name="line.102"></a>
+<FONT color="green">103</FONT>            public HashMap&lt;CBRCase, String&gt; getPredictedClasses(HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; retrievedCases)<a name="line.103"></a>
+<FONT color="green">104</FONT>            {       HashMap&lt;CBRCase, String&gt; votes = new HashMap&lt;CBRCase, String&gt;();<a name="line.104"></a>
+<FONT color="green">105</FONT>                    <a name="line.105"></a>
+<FONT color="green">106</FONT>                    for(Iterator&lt;CBRCase&gt; caseIter = retrievedCases.keySet().iterator(); caseIter.hasNext(); )<a name="line.106"></a>
+<FONT color="green">107</FONT>                    {       CBRCase c = caseIter.next();<a name="line.107"></a>
+<FONT color="green">108</FONT>                            LinkedList&lt;CBRCase&gt; retrieved = retrievedCases.get(c);<a name="line.108"></a>
+<FONT color="green">109</FONT>                            String winner = getPredictedClass(retrieved); <a name="line.109"></a>
+<FONT color="green">110</FONT>                            votes.put(c, winner);<a name="line.110"></a>
+<FONT color="green">111</FONT>                    }<a name="line.111"></a>
+<FONT color="green">112</FONT>                    return votes;<a name="line.112"></a>
+<FONT color="green">113</FONT>            }<a name="line.113"></a>
+<FONT color="green">114</FONT>    <a name="line.114"></a>
+<FONT color="green">115</FONT>            /**<a name="line.115"></a>
+<FONT color="green">116</FONT>             * Classifies the predicted class based on the given retrieved cases.<a name="line.116"></a>
+<FONT color="green">117</FONT>             * The classification is performed using a simple count of the votes,<a name="line.117"></a>
+<FONT color="green">118</FONT>             * the class with the most votes is the predicted class <a name="line.118"></a>
+<FONT color="green">119</FONT>             * @param retrievedCases the cases contributing to the prediction<a name="line.119"></a>
+<FONT color="green">120</FONT>             * @return the predicted class<a name="line.120"></a>
+<FONT color="green">121</FONT>             */<a name="line.121"></a>
+<FONT color="green">122</FONT>            public String getPredictedClass(LinkedList&lt;CBRCase&gt; retrievedCases)<a name="line.122"></a>
+<FONT color="green">123</FONT>            {       HashMap&lt;String, Integer&gt; caseVotes = new HashMap&lt;String, Integer&gt;(); <a name="line.123"></a>
+<FONT color="green">124</FONT>                    for(int i=0; i&lt;retrievedCases.size(); i++)<a name="line.124"></a>
+<FONT color="green">125</FONT>                    {       CBRCase ret = retrievedCases.get(i);<a name="line.125"></a>
+<FONT color="green">126</FONT>                            String retSolution = ret.getSolution().toString(); <a name="line.126"></a>
+<FONT color="green">127</FONT>                            if (caseVotes.containsKey(retSolution))<a name="line.127"></a>
+<FONT color="green">128</FONT>                {   caseVotes.put(retSolution, caseVotes.get(retSolution)+1);<a name="line.128"></a>
+<FONT color="green">129</FONT>                }<a name="line.129"></a>
+<FONT color="green">130</FONT>                else<a name="line.130"></a>
+<FONT color="green">131</FONT>                {   caseVotes.put(retSolution, 1);<a name="line.131"></a>
+<FONT color="green">132</FONT>                }<a name="line.132"></a>
+<FONT color="green">133</FONT>                    }<a name="line.133"></a>
+<FONT color="green">134</FONT>                    int topVotes = -1;<a name="line.134"></a>
+<FONT color="green">135</FONT>                    String winner = null;<a name="line.135"></a>
+<FONT color="green">136</FONT>                    for(Iterator&lt;String&gt; iter=caseVotes.keySet().iterator(); iter.hasNext(); )<a name="line.136"></a>
+<FONT color="green">137</FONT>                    {       String current = iter.next();<a name="line.137"></a>
+<FONT color="green">138</FONT>                            Integer currentVote = caseVotes.get(current);<a name="line.138"></a>
+<FONT color="green">139</FONT>                            if(currentVote &gt; topVotes)<a name="line.139"></a>
+<FONT color="green">140</FONT>                            {       topVotes = currentVote;<a name="line.140"></a>
+<FONT color="green">141</FONT>                                    winner = current;<a name="line.141"></a>
+<FONT color="green">142</FONT>                            }<a name="line.142"></a>
+<FONT color="green">143</FONT>                    }<a name="line.143"></a>
+<FONT color="green">144</FONT>                    return winner;<a name="line.144"></a>
+<FONT color="green">145</FONT>            }<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>    }<a name="line.147"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

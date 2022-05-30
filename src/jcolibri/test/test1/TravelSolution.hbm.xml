@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-lazy="false">
+<class name="jcolibri.test.test1.CasenosoSolution" table="basecase">
+	<id name="id" column="id">
+	</id>
+	<property name="p" column="p"/>
+	<property name="u" column="u"/>
+	<property name="b" column="b"/>
+	<property name="skt" column="skt"/>
+	<property name="autr" column="autr"/>
+	<property name="pas" column="pas"/>
+	<property name="conf" column="conf"/>	
+</class>
+</hibernate-mapping>

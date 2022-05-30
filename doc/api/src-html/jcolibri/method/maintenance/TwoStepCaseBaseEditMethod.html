@@ -1,0 +1,121 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.maintenance;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Collection;<a name="line.3"></a>
+<FONT color="green">004</FONT>    <a name="line.4"></a>
+<FONT color="green">005</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.5"></a>
+<FONT color="green">006</FONT>    import jcolibri.method.reuse.classification.KNNClassificationConfig;<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    /**<a name="line.8"></a>
+<FONT color="green">009</FONT>     * Provides the ability to run two case base editing algorithms consecutively on<a name="line.9"></a>
+<FONT color="green">010</FONT>     * a set of cases. This is useful to run, for example, noise elimintaion prior<a name="line.10"></a>
+<FONT color="green">011</FONT>     * to redundancy removal.<a name="line.11"></a>
+<FONT color="green">012</FONT>     * <a name="line.12"></a>
+<FONT color="green">013</FONT>     * @author Lisa Cummins<a name="line.13"></a>
+<FONT color="green">014</FONT>     */<a name="line.14"></a>
+<FONT color="green">015</FONT>    public class TwoStepCaseBaseEditMethod extends AbstractCaseBaseEditMethod <a name="line.15"></a>
+<FONT color="green">016</FONT>    {<a name="line.16"></a>
+<FONT color="green">017</FONT>            protected AbstractCaseBaseEditMethod method1;<a name="line.17"></a>
+<FONT color="green">018</FONT>            protected AbstractCaseBaseEditMethod method2;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>            /**<a name="line.20"></a>
+<FONT color="green">021</FONT>             * Sets up the edit method using the two provided methods.<a name="line.21"></a>
+<FONT color="green">022</FONT>             * @param method1 The first method to run.<a name="line.22"></a>
+<FONT color="green">023</FONT>             * @param method2 The second method to run.<a name="line.23"></a>
+<FONT color="green">024</FONT>             */<a name="line.24"></a>
+<FONT color="green">025</FONT>            public TwoStepCaseBaseEditMethod(AbstractCaseBaseEditMethod method1,<a name="line.25"></a>
+<FONT color="green">026</FONT>                            AbstractCaseBaseEditMethod method2) <a name="line.26"></a>
+<FONT color="green">027</FONT>            {       this.method1 = method1;<a name="line.27"></a>
+<FONT color="green">028</FONT>                    this.method2 = method2;<a name="line.28"></a>
+<FONT color="green">029</FONT>            }<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>            /**<a name="line.31"></a>
+<FONT color="green">032</FONT>             * Runs alg1 followed by alg2 on the given cases and returns the cases<a name="line.32"></a>
+<FONT color="green">033</FONT>             * deleted by the combined algorithms<a name="line.33"></a>
+<FONT color="green">034</FONT>             * <a name="line.34"></a>
+<FONT color="green">035</FONT>             * @param cases<a name="line.35"></a>
+<FONT color="green">036</FONT>             *            The group of cases on which to perform maintenance<a name="line.36"></a>
+<FONT color="green">037</FONT>             * @param simConfig<a name="line.37"></a>
+<FONT color="green">038</FONT>             *            The KNNConfig for these cases<a name="line.38"></a>
+<FONT color="green">039</FONT>             * @return the list of cases deleted by the algorithm<a name="line.39"></a>
+<FONT color="green">040</FONT>             */<a name="line.40"></a>
+<FONT color="green">041</FONT>            public Collection&lt;CBRCase&gt; retrieveCasesToDelete(Collection&lt;CBRCase&gt; cases,<a name="line.41"></a>
+<FONT color="green">042</FONT>                            KNNClassificationConfig simConfig) <a name="line.42"></a>
+<FONT color="green">043</FONT>            {       Collection&lt;CBRCase&gt; deletedCases = method1.retrieveCasesToDelete(cases, simConfig);<a name="line.43"></a>
+<FONT color="green">044</FONT>                    System.out.println(method1.getClass().getName()+" Done, Deleted: " + deletedCases.size());<a name="line.44"></a>
+<FONT color="green">045</FONT>                    System.out.println();<a name="line.45"></a>
+<FONT color="green">046</FONT>                    for(CBRCase c: deletedCases)<a name="line.46"></a>
+<FONT color="green">047</FONT>                        System.out.println(c.getID());<a name="line.47"></a>
+<FONT color="green">048</FONT>                    cases.removeAll(deletedCases);<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>                    deletedCases.addAll(method2.retrieveCasesToDelete(cases, simConfig));<a name="line.50"></a>
+<FONT color="green">051</FONT>                    System.out.println(method2.getClass().getName()+" Done, Deleted: " + deletedCases.size());<a name="line.51"></a>
+<FONT color="green">052</FONT>                    <a name="line.52"></a>
+<FONT color="green">053</FONT>                    return deletedCases;<a name="line.53"></a>
+<FONT color="green">054</FONT>            }<a name="line.54"></a>
+<FONT color="green">055</FONT>    }<a name="line.55"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

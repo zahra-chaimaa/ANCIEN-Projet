@@ -1,0 +1,264 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Test2.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 28/11/2006<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.test.test2;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.Collection;<a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    import jcolibri.casebase.LinealCaseBase;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import jcolibri.cbraplications.StandardCBRApplication;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.cbrcore.Attribute;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import jcolibri.cbrcore.CBRCaseBase;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.cbrcore.Connector;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import jcolibri.connector.DataBaseConnector;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import jcolibri.exception.ExecutionException;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import jcolibri.method.retrieve.RetrievalResult;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import jcolibri.method.retrieve.NNretrieval.NNConfig;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import jcolibri.method.retrieve.NNretrieval.NNScoringMethod;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.global.Average;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.local.Equal;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import jcolibri.method.retrieve.selection.SelectCases;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    /**<a name="line.29"></a>
+<FONT color="green">030</FONT>     * This second test shows how to use enumerated values and user defined data types as attributes.&lt;br&gt;<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;ul&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     * &lt;li&gt;&lt;b&gt;Enums:&lt;/b&gt;&lt;br&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     * In the TravelDescription class we define the enumeration:<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;pre&gt;<a name="line.34"></a>
+<FONT color="green">035</FONT>     * enum AccommodationTypes  { OneStar, TwoStars, ThreeStars, HolidayFlat, FourStars, FiveStars};<a name="line.35"></a>
+<FONT color="green">036</FONT>     * &lt;/pre&gt;<a name="line.36"></a>
+<FONT color="green">037</FONT>     * for the accomodation attribute. To manage that attribute we only have to modify the &lt;b&gt;TravelDescription.hbm.xml&lt;/b&gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     * with the following code:<a name="line.38"></a>
+<FONT color="green">039</FONT>     * &lt;pre&gt;<a name="line.39"></a>
+<FONT color="green">040</FONT>     *  ...<a name="line.40"></a>
+<FONT color="green">041</FONT>     *      &amp;lt;property name="Accommodation" column="Accommodation"&amp;gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>     *              &amp;lt;type name="jcolibri.connector.databaseutils.EnumUserType"&amp;gt;<a name="line.42"></a>
+<FONT color="green">043</FONT>     *                      &amp;lt;param name="enumClassName"&amp;gt;jcolibri.test.test2.TravelDescription$AccommodationTypes&amp;lt;/param&amp;gt;<a name="line.43"></a>
+<FONT color="green">044</FONT>     *      &amp;lt;/type&amp;gt;<a name="line.44"></a>
+<FONT color="green">045</FONT>     *      &amp;lt;/property&amp;gt;<a name="line.45"></a>
+<FONT color="green">046</FONT>     *      ...<a name="line.46"></a>
+<FONT color="green">047</FONT>     * &lt;/pre&gt;<a name="line.47"></a>
+<FONT color="green">048</FONT>     * The EnumUserType class is a utility class of the connector that allows managing Enums. It recieves the class name of you enum as parameter.<a name="line.48"></a>
+<FONT color="green">049</FONT>     * &lt;li&gt;&lt;b&gt;User defined data types:&lt;/b&gt;&lt;br&gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>     * To create your own data type implement the jcolibri.connector.TypeAdaptor interface. MyStringType.java is a simple example were we are wrapping a string.<a name="line.50"></a>
+<FONT color="green">051</FONT>     * You have to define the toString(), fromString() and equals() methods. That way the value of your data type will be mapped using a string representation in the presistence media.<a name="line.51"></a>
+<FONT color="green">052</FONT>     * &lt;br&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     * In this example we have typed the "Hotel" attribute of the description as "MyStringType. To manage the attribute we have to modify the &lt;b&gt;TravelDescription.hbm.xml&lt;/b&gt; file with:<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;pre&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     *      &amp;lt;property name="Hotel" column="Hotel"&amp;gt;<a name="line.55"></a>
+<FONT color="green">056</FONT>     *              &amp;lt;type name="jcolibri.connector.databaseutils.GenericUserType"&amp;gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>     *                      &amp;lt;param name="className"&amp;gt;jcolibri.test.test2.MyStringType&amp;lt;/param&amp;gt;<a name="line.57"></a>
+<FONT color="green">058</FONT>     *      &amp;lt;/type&amp;gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     *      &amp;lt;/property&amp;gt;<a name="line.59"></a>
+<FONT color="green">060</FONT>     * &lt;/pre&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     * The GenericUserType class is the utility class that allows to manage TypeAdaptor implementations in the data base connector.<a name="line.61"></a>
+<FONT color="green">062</FONT>     * <a name="line.62"></a>
+<FONT color="green">063</FONT>     * @author Juan A. Recio-Garcia<a name="line.63"></a>
+<FONT color="green">064</FONT>     * @version 1.0<a name="line.64"></a>
+<FONT color="green">065</FONT>     * @see jcolibri.connector.TypeAdaptor<a name="line.65"></a>
+<FONT color="green">066</FONT>     * @see jcolibri.test.test2.TravelDescription<a name="line.66"></a>
+<FONT color="green">067</FONT>     * @see jcolibri.test.test2.MyStringType<a name="line.67"></a>
+<FONT color="green">068</FONT>     */<a name="line.68"></a>
+<FONT color="green">069</FONT>    public class Test2 implements StandardCBRApplication {<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>            /** Connector object */<a name="line.71"></a>
+<FONT color="green">072</FONT>            Connector _connector;<a name="line.72"></a>
+<FONT color="green">073</FONT>            /** CaseBase object */<a name="line.73"></a>
+<FONT color="green">074</FONT>            CBRCaseBase _caseBase;<a name="line.74"></a>
+<FONT color="green">075</FONT>            <a name="line.75"></a>
+<FONT color="green">076</FONT>            /* (non-Javadoc)<a name="line.76"></a>
+<FONT color="green">077</FONT>             * @see jcolibri.cbraplications.BasicCBRApplication#configure()<a name="line.77"></a>
+<FONT color="green">078</FONT>             */<a name="line.78"></a>
+<FONT color="green">079</FONT>            public void configure() throws ExecutionException{<a name="line.79"></a>
+<FONT color="green">080</FONT>                    try{<a name="line.80"></a>
+<FONT color="green">081</FONT>                    // Create a data base connector<a name="line.81"></a>
+<FONT color="green">082</FONT>                    _connector = new DataBaseConnector();<a name="line.82"></a>
+<FONT color="green">083</FONT>                    // Init the ddbb connector with the config file<a name="line.83"></a>
+<FONT color="green">084</FONT>                    _connector.initFromXMLfile(jcolibri.util.FileIO.findFile("jcolibri/test/test2/databaseconfig.xml"));<a name="line.84"></a>
+<FONT color="green">085</FONT>                    // Create a Lineal case base for in-memory organization<a name="line.85"></a>
+<FONT color="green">086</FONT>                    _caseBase  = new LinealCaseBase();<a name="line.86"></a>
+<FONT color="green">087</FONT>                    } catch (Exception e){<a name="line.87"></a>
+<FONT color="green">088</FONT>                            throw new ExecutionException(e);<a name="line.88"></a>
+<FONT color="green">089</FONT>                    }<a name="line.89"></a>
+<FONT color="green">090</FONT>            }<a name="line.90"></a>
+<FONT color="green">091</FONT>    <a name="line.91"></a>
+<FONT color="green">092</FONT>            <a name="line.92"></a>
+<FONT color="green">093</FONT>            /* (non-Javadoc)<a name="line.93"></a>
+<FONT color="green">094</FONT>             * @see jcolibri.cbraplications.BasicCBRApplication#preCycle()<a name="line.94"></a>
+<FONT color="green">095</FONT>             */<a name="line.95"></a>
+<FONT color="green">096</FONT>            public CBRCaseBase preCycle() throws ExecutionException {<a name="line.96"></a>
+<FONT color="green">097</FONT>                    // Load cases from connector into the case base<a name="line.97"></a>
+<FONT color="green">098</FONT>                    _caseBase.init(_connector);             <a name="line.98"></a>
+<FONT color="green">099</FONT>                    return _caseBase;<a name="line.99"></a>
+<FONT color="green">100</FONT>            }<a name="line.100"></a>
+<FONT color="green">101</FONT>            <a name="line.101"></a>
+<FONT color="green">102</FONT>            /* (non-Javadoc)<a name="line.102"></a>
+<FONT color="green">103</FONT>             * @see jcolibri.cbraplications.BasicCBRApplication#cycle()<a name="line.103"></a>
+<FONT color="green">104</FONT>             */<a name="line.104"></a>
+<FONT color="green">105</FONT>            public void cycle(CBRQuery query) throws ExecutionException <a name="line.105"></a>
+<FONT color="green">106</FONT>            {               <a name="line.106"></a>
+<FONT color="green">107</FONT>                    // First configure the KNN<a name="line.107"></a>
+<FONT color="green">108</FONT>                    NNConfig simConfig = new NNConfig();<a name="line.108"></a>
+<FONT color="green">109</FONT>                    // Set the average() global similarity function for the description of the case<a name="line.109"></a>
+<FONT color="green">110</FONT>                    simConfig.setDescriptionSimFunction(new Average());<a name="line.110"></a>
+<FONT color="green">111</FONT>                    // The accomodation attribute uses the equal() local similarity function<a name="line.111"></a>
+<FONT color="green">112</FONT>                    simConfig.addMapping(new Attribute("Accommodation", TravelDescription.class), new Equal());<a name="line.112"></a>
+<FONT color="green">113</FONT>                    // For the duration attribute we are going to set its local similarity function and the weight<a name="line.113"></a>
+<FONT color="green">114</FONT>                    Attribute duration = new Attribute("Duration", TravelDescription.class);<a name="line.114"></a>
+<FONT color="green">115</FONT>                    simConfig.addMapping(duration, new Interval(31));<a name="line.115"></a>
+<FONT color="green">116</FONT>                    simConfig.setWeight(duration, 0.5);<a name="line.116"></a>
+<FONT color="green">117</FONT>                    // HolidayType --&gt; equal()<a name="line.117"></a>
+<FONT color="green">118</FONT>                    simConfig.addMapping(new Attribute("HolidayType", TravelDescription.class), new Equal());<a name="line.118"></a>
+<FONT color="green">119</FONT>                    // NumberOfPersons --&gt; equal()<a name="line.119"></a>
+<FONT color="green">120</FONT>                    simConfig.addMapping(new Attribute("NumberOfPersons", TravelDescription.class), new Equal());<a name="line.120"></a>
+<FONT color="green">121</FONT>                    // Price --&gt; InrecaLessIsBetter()<a name="line.121"></a>
+<FONT color="green">122</FONT>                    simConfig.addMapping(new Attribute("Price", TravelDescription.class), new Interval(4000));<a name="line.122"></a>
+<FONT color="green">123</FONT>                    <a name="line.123"></a>
+<FONT color="green">124</FONT>                    <a name="line.124"></a>
+<FONT color="green">125</FONT>                    // A bit of verbose<a name="line.125"></a>
+<FONT color="green">126</FONT>                    System.out.println("Query Description:");<a name="line.126"></a>
+<FONT color="green">127</FONT>                    System.out.println(query.getDescription());<a name="line.127"></a>
+<FONT color="green">128</FONT>                    System.out.println();<a name="line.128"></a>
+<FONT color="green">129</FONT>                    <a name="line.129"></a>
+<FONT color="green">130</FONT>                    // Execute NN<a name="line.130"></a>
+<FONT color="green">131</FONT>                    Collection&lt;RetrievalResult&gt; eval = NNScoringMethod.evaluateSimilarity(_caseBase.getCases(), query, simConfig);<a name="line.131"></a>
+<FONT color="green">132</FONT>                    <a name="line.132"></a>
+<FONT color="green">133</FONT>                    // Select k cases<a name="line.133"></a>
+<FONT color="green">134</FONT>                    eval = SelectCases.selectTopKRR(eval, 5);<a name="line.134"></a>
+<FONT color="green">135</FONT>                    <a name="line.135"></a>
+<FONT color="green">136</FONT>                    // Print the retrieval<a name="line.136"></a>
+<FONT color="green">137</FONT>                    System.out.println("Retrieved cases:");<a name="line.137"></a>
+<FONT color="green">138</FONT>                    for(RetrievalResult nse: eval)<a name="line.138"></a>
+<FONT color="green">139</FONT>                            System.out.println(nse);<a name="line.139"></a>
+<FONT color="green">140</FONT>            }<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>            /* (non-Javadoc)<a name="line.142"></a>
+<FONT color="green">143</FONT>             * @see jcolibri.cbraplications.BasicCBRApplication#postCycle()<a name="line.143"></a>
+<FONT color="green">144</FONT>             */<a name="line.144"></a>
+<FONT color="green">145</FONT>            public void postCycle() throws ExecutionException {<a name="line.145"></a>
+<FONT color="green">146</FONT>                    this._caseBase.close();<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>            }<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>            /**<a name="line.150"></a>
+<FONT color="green">151</FONT>             * @param args<a name="line.151"></a>
+<FONT color="green">152</FONT>             */<a name="line.152"></a>
+<FONT color="green">153</FONT>            public static void main(String[] args) {<a name="line.153"></a>
+<FONT color="green">154</FONT>                    // Launch DDBB manager<a name="line.154"></a>
+<FONT color="green">155</FONT>                    jcolibri.test.database.HSQLDBserver.init();<a name="line.155"></a>
+<FONT color="green">156</FONT>                    <a name="line.156"></a>
+<FONT color="green">157</FONT>                    // Create the application<a name="line.157"></a>
+<FONT color="green">158</FONT>                    Test2 test2 = new Test2();<a name="line.158"></a>
+<FONT color="green">159</FONT>                    try {<a name="line.159"></a>
+<FONT color="green">160</FONT>                            //Configure it<a name="line.160"></a>
+<FONT color="green">161</FONT>                            test2.configure();<a name="line.161"></a>
+<FONT color="green">162</FONT>                            // Run the precycle --&gt; load the cases<a name="line.162"></a>
+<FONT color="green">163</FONT>                            test2.preCycle();<a name="line.163"></a>
+<FONT color="green">164</FONT>                            <a name="line.164"></a>
+<FONT color="green">165</FONT>                            //BufferedReader reader  = new BufferedReader(new InputStreamReader(System.in));                        <a name="line.165"></a>
+<FONT color="green">166</FONT>                            //do{           <a name="line.166"></a>
+<FONT color="green">167</FONT>                                    TravelDescription queryDesc = new TravelDescription();<a name="line.167"></a>
+<FONT color="green">168</FONT>                                    // The accommodation is a value of the Enum<a name="line.168"></a>
+<FONT color="green">169</FONT>                                    queryDesc.setAccommodation(TravelDescription.AccommodationTypes.ThreeStars);<a name="line.169"></a>
+<FONT color="green">170</FONT>                                    queryDesc.setDuration(7);<a name="line.170"></a>
+<FONT color="green">171</FONT>                                    queryDesc.setHolidayType("Recreation");<a name="line.171"></a>
+<FONT color="green">172</FONT>                                    queryDesc.setNumberOfPersons(2);<a name="line.172"></a>
+<FONT color="green">173</FONT>                                    queryDesc.setPrice(700);<a name="line.173"></a>
+<FONT color="green">174</FONT>                                    <a name="line.174"></a>
+<FONT color="green">175</FONT>                                    CBRQuery query = new CBRQuery();<a name="line.175"></a>
+<FONT color="green">176</FONT>                                    query.setDescription(queryDesc);<a name="line.176"></a>
+<FONT color="green">177</FONT>                                    <a name="line.177"></a>
+<FONT color="green">178</FONT>                                    // Execute query<a name="line.178"></a>
+<FONT color="green">179</FONT>                                    test2.cycle(query);<a name="line.179"></a>
+<FONT color="green">180</FONT>                                    <a name="line.180"></a>
+<FONT color="green">181</FONT>                            //System.out.println("Cycle finished. Type exit to idem or enter to repeat the cycle");<a name="line.181"></a>
+<FONT color="green">182</FONT>                            //}while(!reader.readLine().equals("exit"));<a name="line.182"></a>
+<FONT color="green">183</FONT>                            <a name="line.183"></a>
+<FONT color="green">184</FONT>                            test2.postCycle();<a name="line.184"></a>
+<FONT color="green">185</FONT>                            <a name="line.185"></a>
+<FONT color="green">186</FONT>                            //Shutdown DDBB manager<a name="line.186"></a>
+<FONT color="green">187</FONT>                            jcolibri.test.database.HSQLDBserver.shutDown();<a name="line.187"></a>
+<FONT color="green">188</FONT>    <a name="line.188"></a>
+<FONT color="green">189</FONT>                    } catch (ExecutionException e) {<a name="line.189"></a>
+<FONT color="green">190</FONT>                            System.out.println(e.getMessage());<a name="line.190"></a>
+<FONT color="green">191</FONT>                            e.printStackTrace();<a name="line.191"></a>
+<FONT color="green">192</FONT>                    } catch (Exception e) {<a name="line.192"></a>
+<FONT color="green">193</FONT>                            // TODO Auto-generated catch block<a name="line.193"></a>
+<FONT color="green">194</FONT>                            e.printStackTrace();<a name="line.194"></a>
+<FONT color="green">195</FONT>                    }<a name="line.195"></a>
+<FONT color="green">196</FONT>            }<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
+<FONT color="green">198</FONT>    }<a name="line.198"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

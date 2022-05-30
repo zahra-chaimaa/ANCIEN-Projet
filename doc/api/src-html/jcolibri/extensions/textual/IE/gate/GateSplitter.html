@@ -1,0 +1,289 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * GateSplitter.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 19/06/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.extensions.textual.IE.gate;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import gate.Annotation;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import gate.AnnotationSet;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import gate.Document;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import gate.Factory;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import gate.GateConstants;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import gate.creole.splitter.SentenceSplitter;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import gate.creole.tokeniser.DefaultTokeniser;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.util.ArrayList;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.util.Collection;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.List;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import jcolibri.cbrcore.Attribute;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import jcolibri.extensions.textual.IE.IEutils;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import jcolibri.extensions.textual.IE.representation.IEText;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import jcolibri.extensions.textual.IE.representation.Paragraph;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import jcolibri.extensions.textual.IE.representation.Sentence;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import jcolibri.extensions.textual.IE.representation.Token;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import jcolibri.util.AttributeUtils;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import jcolibri.util.ProgressController;<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>    /**<a name="line.34"></a>
+<FONT color="green">035</FONT>     * Organizes an IETextGate object in paragraphs, sentences and tokens.<a name="line.35"></a>
+<FONT color="green">036</FONT>     * This implementation uses the GATE algorithms to obtain sentences and tokens.<a name="line.36"></a>
+<FONT color="green">037</FONT>     * @author Juan A. Recio-Garcia<a name="line.37"></a>
+<FONT color="green">038</FONT>     * @version 1.0<a name="line.38"></a>
+<FONT color="green">039</FONT>     */<a name="line.39"></a>
+<FONT color="green">040</FONT>    public class GateSplitter<a name="line.40"></a>
+<FONT color="green">041</FONT>    {<a name="line.41"></a>
+<FONT color="green">042</FONT>        /**<a name="line.42"></a>
+<FONT color="green">043</FONT>         * Performs the algorithm in the given attributes of a collection of cases.<a name="line.43"></a>
+<FONT color="green">044</FONT>         * These attributes must be IETextGate objects.<a name="line.44"></a>
+<FONT color="green">045</FONT>         */<a name="line.45"></a>
+<FONT color="green">046</FONT>        public static void split(Collection&lt;CBRCase&gt; cases, Collection&lt;Attribute&gt; attributes)<a name="line.46"></a>
+<FONT color="green">047</FONT>        {<a name="line.47"></a>
+<FONT color="green">048</FONT>            org.apache.commons.logging.LogFactory.getLog(GateSplitter.class).info("Splitting Gate text.");<a name="line.48"></a>
+<FONT color="green">049</FONT>            ProgressController.init(GateSplitter.class, "Splitting Gate text", cases.size());<a name="line.49"></a>
+<FONT color="green">050</FONT>            for(CBRCase c: cases)<a name="line.50"></a>
+<FONT color="green">051</FONT>            {<a name="line.51"></a>
+<FONT color="green">052</FONT>                for(Attribute a: attributes)<a name="line.52"></a>
+<FONT color="green">053</FONT>                {<a name="line.53"></a>
+<FONT color="green">054</FONT>                    Object o = AttributeUtils.findValue(a, c);<a name="line.54"></a>
+<FONT color="green">055</FONT>                    if(o instanceof IETextGate)<a name="line.55"></a>
+<FONT color="green">056</FONT>                        split((IETextGate)o);<a name="line.56"></a>
+<FONT color="green">057</FONT>                }<a name="line.57"></a>
+<FONT color="green">058</FONT>                ProgressController.step(GateSplitter.class);<a name="line.58"></a>
+<FONT color="green">059</FONT>            }<a name="line.59"></a>
+<FONT color="green">060</FONT>            ProgressController.finish(GateSplitter.class);<a name="line.60"></a>
+<FONT color="green">061</FONT>        }<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>        /**<a name="line.63"></a>
+<FONT color="green">064</FONT>         * Performs the algorithm in the given attributes of a query.<a name="line.64"></a>
+<FONT color="green">065</FONT>         * These attributes must be IETextGate objects.<a name="line.65"></a>
+<FONT color="green">066</FONT>         */<a name="line.66"></a>
+<FONT color="green">067</FONT>        public static void split(CBRQuery query, Collection&lt;Attribute&gt; attributes)<a name="line.67"></a>
+<FONT color="green">068</FONT>        {<a name="line.68"></a>
+<FONT color="green">069</FONT>                org.apache.commons.logging.LogFactory.getLog(GateSplitter.class).info("Splitting Gate text.");<a name="line.69"></a>
+<FONT color="green">070</FONT>                for(Attribute a: attributes)<a name="line.70"></a>
+<FONT color="green">071</FONT>                {<a name="line.71"></a>
+<FONT color="green">072</FONT>                    Object o = AttributeUtils.findValue(a, query);<a name="line.72"></a>
+<FONT color="green">073</FONT>                    if(o instanceof IETextGate)<a name="line.73"></a>
+<FONT color="green">074</FONT>                        split((IETextGate)o);<a name="line.74"></a>
+<FONT color="green">075</FONT>                }<a name="line.75"></a>
+<FONT color="green">076</FONT>        }<a name="line.76"></a>
+<FONT color="green">077</FONT>        <a name="line.77"></a>
+<FONT color="green">078</FONT>        public static void split(Collection&lt;CBRCase&gt; cases)<a name="line.78"></a>
+<FONT color="green">079</FONT>        {<a name="line.79"></a>
+<FONT color="green">080</FONT>            org.apache.commons.logging.LogFactory.getLog(GateSplitter.class).info("Splitting Gate text.");<a name="line.80"></a>
+<FONT color="green">081</FONT>            ProgressController.init(GateSplitter.class, "Splitting Gate text", cases.size());<a name="line.81"></a>
+<FONT color="green">082</FONT>            for(CBRCase c: cases)<a name="line.82"></a>
+<FONT color="green">083</FONT>            {<a name="line.83"></a>
+<FONT color="green">084</FONT>                Collection&lt;IEText&gt; texts = IEutils.getTexts(c);<a name="line.84"></a>
+<FONT color="green">085</FONT>                for(IEText t : texts)<a name="line.85"></a>
+<FONT color="green">086</FONT>                    if(t instanceof IETextGate)<a name="line.86"></a>
+<FONT color="green">087</FONT>                        split((IETextGate)t);<a name="line.87"></a>
+<FONT color="green">088</FONT>                ProgressController.step(GateSplitter.class);<a name="line.88"></a>
+<FONT color="green">089</FONT>            }<a name="line.89"></a>
+<FONT color="green">090</FONT>            ProgressController.finish(GateSplitter.class);<a name="line.90"></a>
+<FONT color="green">091</FONT>        }<a name="line.91"></a>
+<FONT color="green">092</FONT>        <a name="line.92"></a>
+<FONT color="green">093</FONT>        /**<a name="line.93"></a>
+<FONT color="green">094</FONT>         * Performs the algorithm in all the IETextGate typed attributes of a collection of cases.<a name="line.94"></a>
+<FONT color="green">095</FONT>         */ <a name="line.95"></a>
+<FONT color="green">096</FONT>        public static void split(CBRQuery query)<a name="line.96"></a>
+<FONT color="green">097</FONT>        {       <a name="line.97"></a>
+<FONT color="green">098</FONT>            org.apache.commons.logging.LogFactory.getLog(GateSplitter.class).info("Splitting Gate text.");<a name="line.98"></a>
+<FONT color="green">099</FONT>            Collection&lt;IEText&gt; texts = IEutils.getTexts(query);<a name="line.99"></a>
+<FONT color="green">100</FONT>            for(IEText t : texts)<a name="line.100"></a>
+<FONT color="green">101</FONT>                if(t instanceof IETextGate)<a name="line.101"></a>
+<FONT color="green">102</FONT>                    split((IETextGate)t);<a name="line.102"></a>
+<FONT color="green">103</FONT>        }<a name="line.103"></a>
+<FONT color="green">104</FONT>        <a name="line.104"></a>
+<FONT color="green">105</FONT>        /**<a name="line.105"></a>
+<FONT color="green">106</FONT>         * Performs the algorithm in all the IETextGate typed attributes of a query.<a name="line.106"></a>
+<FONT color="green">107</FONT>         */<a name="line.107"></a>
+<FONT color="green">108</FONT>        public static void split(IETextGate text)<a name="line.108"></a>
+<FONT color="green">109</FONT>        {<a name="line.109"></a>
+<FONT color="green">110</FONT>            try<a name="line.110"></a>
+<FONT color="green">111</FONT>            {<a name="line.111"></a>
+<FONT color="green">112</FONT>                DefaultTokeniser tokeniser = getTokeniser();<a name="line.112"></a>
+<FONT color="green">113</FONT>                tokeniser.setDocument(text.getDocument());<a name="line.113"></a>
+<FONT color="green">114</FONT>                tokeniser.execute();<a name="line.114"></a>
+<FONT color="green">115</FONT>                <a name="line.115"></a>
+<FONT color="green">116</FONT>                SentenceSplitter sentenceSplitter = getSentenceSplitter();<a name="line.116"></a>
+<FONT color="green">117</FONT>                sentenceSplitter.setDocument(text.getDocument());<a name="line.117"></a>
+<FONT color="green">118</FONT>                sentenceSplitter.execute();<a name="line.118"></a>
+<FONT color="green">119</FONT>                <a name="line.119"></a>
+<FONT color="green">120</FONT>                organizeText(text);<a name="line.120"></a>
+<FONT color="green">121</FONT>                <a name="line.121"></a>
+<FONT color="green">122</FONT>            } catch (Exception e)<a name="line.122"></a>
+<FONT color="green">123</FONT>            {<a name="line.123"></a>
+<FONT color="green">124</FONT>                org.apache.commons.logging.LogFactory.getLog(GateSplitter.class).error(e);   <a name="line.124"></a>
+<FONT color="green">125</FONT>            }<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>        <a name="line.127"></a>
+<FONT color="green">128</FONT>        <a name="line.128"></a>
+<FONT color="green">129</FONT>        /**<a name="line.129"></a>
+<FONT color="green">130</FONT>         * Performs the algorithm in a given IETextGate object<a name="line.130"></a>
+<FONT color="green">131</FONT>         */<a name="line.131"></a>
+<FONT color="green">132</FONT>        @SuppressWarnings("unchecked")<a name="line.132"></a>
+<FONT color="green">133</FONT>        protected static void organizeText(IETextGate text)<a name="line.133"></a>
+<FONT color="green">134</FONT>        {<a name="line.134"></a>
+<FONT color="green">135</FONT>            Document doc = text.getDocument();<a name="line.135"></a>
+<FONT color="green">136</FONT>            String content = text.getRAWContent();<a name="line.136"></a>
+<FONT color="green">137</FONT>            <a name="line.137"></a>
+<FONT color="green">138</FONT>            //Paragraphs<a name="line.138"></a>
+<FONT color="green">139</FONT>            AnnotationSet parAnnot = doc.getAnnotations(GateConstants.ORIGINAL_MARKUPS_ANNOT_SET_NAME);<a name="line.139"></a>
+<FONT color="green">140</FONT>            AnnotationSet paragraphs = parAnnot.get("paragraph");<a name="line.140"></a>
+<FONT color="green">141</FONT>            AnnotationSet annot = doc.getAnnotations();<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>            List&lt;Annotation&gt; sents = new ArrayList&lt;Annotation&gt;(annot.get("Sentence"));<a name="line.143"></a>
+<FONT color="green">144</FONT>            java.util.Collections.sort(sents);<a name="line.144"></a>
+<FONT color="green">145</FONT>            <a name="line.145"></a>
+<FONT color="green">146</FONT>            List&lt;Annotation&gt; tokens = new ArrayList&lt;Annotation&gt;(annot.get("Token"));<a name="line.146"></a>
+<FONT color="green">147</FONT>            java.util.Collections.sort(tokens);<a name="line.147"></a>
+<FONT color="green">148</FONT>            <a name="line.148"></a>
+<FONT color="green">149</FONT>            ArrayList&lt;Annotation&gt; sentsToRemove = new ArrayList&lt;Annotation&gt;();<a name="line.149"></a>
+<FONT color="green">150</FONT>            ArrayList&lt;Annotation&gt; tokensToRemove = new ArrayList&lt;Annotation&gt;();<a name="line.150"></a>
+<FONT color="green">151</FONT>            for(int p=0; p&lt;paragraphs.size(); p++)<a name="line.151"></a>
+<FONT color="green">152</FONT>            {<a name="line.152"></a>
+<FONT color="green">153</FONT>                Annotation par = paragraphs.get(p);<a name="line.153"></a>
+<FONT color="green">154</FONT>                int beginP = par.getStartNode().getOffset().intValue();<a name="line.154"></a>
+<FONT color="green">155</FONT>                int endP   = par.getEndNode().getOffset().intValue();<a name="line.155"></a>
+<FONT color="green">156</FONT>                Paragraph myPar = new Paragraph(content.substring(beginP,endP));<a name="line.156"></a>
+<FONT color="green">157</FONT>                text.addParagraph(myPar);<a name="line.157"></a>
+<FONT color="green">158</FONT>                text.setParagraphMapping(myPar, par);<a name="line.158"></a>
+<FONT color="green">159</FONT>                <a name="line.159"></a>
+<FONT color="green">160</FONT>                //Sentences<a name="line.160"></a>
+<FONT color="green">161</FONT>                sentsToRemove.clear();<a name="line.161"></a>
+<FONT color="green">162</FONT>                for(int s=0; s&lt;sents.size(); s++)<a name="line.162"></a>
+<FONT color="green">163</FONT>                {<a name="line.163"></a>
+<FONT color="green">164</FONT>                    Annotation sent = sents.get(s);<a name="line.164"></a>
+<FONT color="green">165</FONT>                    int beginS = sent.getStartNode().getOffset().intValue();<a name="line.165"></a>
+<FONT color="green">166</FONT>                    int endS   = sent.getEndNode().getOffset().intValue();<a name="line.166"></a>
+<FONT color="green">167</FONT>                    if((beginS&lt;beginP)||(endS&gt;endP))<a name="line.167"></a>
+<FONT color="green">168</FONT>                        continue;<a name="line.168"></a>
+<FONT color="green">169</FONT>                    Sentence mySent = new Sentence(content.substring(beginS, endS));<a name="line.169"></a>
+<FONT color="green">170</FONT>                    myPar.addSentence(mySent);<a name="line.170"></a>
+<FONT color="green">171</FONT>                    text.setSentenceMapping(mySent, sent);<a name="line.171"></a>
+<FONT color="green">172</FONT>                    sentsToRemove.remove(sent);<a name="line.172"></a>
+<FONT color="green">173</FONT>                    <a name="line.173"></a>
+<FONT color="green">174</FONT>                    <a name="line.174"></a>
+<FONT color="green">175</FONT>                    //Tokens<a name="line.175"></a>
+<FONT color="green">176</FONT>                    tokensToRemove.clear();<a name="line.176"></a>
+<FONT color="green">177</FONT>                    for(int t=0; t&lt;tokens.size(); t++)<a name="line.177"></a>
+<FONT color="green">178</FONT>                    {<a name="line.178"></a>
+<FONT color="green">179</FONT>                        Annotation token = tokens.get(t);<a name="line.179"></a>
+<FONT color="green">180</FONT>                        int beginT = token.getStartNode().getOffset().intValue();<a name="line.180"></a>
+<FONT color="green">181</FONT>                        int endT   = token.getEndNode().getOffset().intValue();<a name="line.181"></a>
+<FONT color="green">182</FONT>                        if((beginT&lt;beginS)||(endT&gt;endS))<a name="line.182"></a>
+<FONT color="green">183</FONT>                            continue;<a name="line.183"></a>
+<FONT color="green">184</FONT>                        Token myToken = new Token(content.substring(beginT,endT));<a name="line.184"></a>
+<FONT color="green">185</FONT>                        mySent.addToken(myToken);<a name="line.185"></a>
+<FONT color="green">186</FONT>                        text.setTokenMapping(myToken, token);<a name="line.186"></a>
+<FONT color="green">187</FONT>                        tokensToRemove.add(token);<a name="line.187"></a>
+<FONT color="green">188</FONT>                    }<a name="line.188"></a>
+<FONT color="green">189</FONT>                    tokens.removeAll(tokensToRemove);<a name="line.189"></a>
+<FONT color="green">190</FONT>                }<a name="line.190"></a>
+<FONT color="green">191</FONT>                sents.removeAll(sentsToRemove);<a name="line.191"></a>
+<FONT color="green">192</FONT>                <a name="line.192"></a>
+<FONT color="green">193</FONT>            }<a name="line.193"></a>
+<FONT color="green">194</FONT>            <a name="line.194"></a>
+<FONT color="green">195</FONT>                <a name="line.195"></a>
+<FONT color="green">196</FONT>        }<a name="line.196"></a>
+<FONT color="green">197</FONT>        <a name="line.197"></a>
+<FONT color="green">198</FONT>        private static DefaultTokeniser tokeniser = null;<a name="line.198"></a>
+<FONT color="green">199</FONT>        private static DefaultTokeniser getTokeniser() throws Exception<a name="line.199"></a>
+<FONT color="green">200</FONT>        {<a name="line.200"></a>
+<FONT color="green">201</FONT>            if(tokeniser == null)<a name="line.201"></a>
+<FONT color="green">202</FONT>            {<a name="line.202"></a>
+<FONT color="green">203</FONT>                tokeniser = (DefaultTokeniser) Factory.createResource(<a name="line.203"></a>
+<FONT color="green">204</FONT>                                      "gate.creole.tokeniser.DefaultTokeniser");<a name="line.204"></a>
+<FONT color="green">205</FONT>                tokeniser.init();<a name="line.205"></a>
+<FONT color="green">206</FONT>            }<a name="line.206"></a>
+<FONT color="green">207</FONT>            return tokeniser;<a name="line.207"></a>
+<FONT color="green">208</FONT>        }<a name="line.208"></a>
+<FONT color="green">209</FONT>        <a name="line.209"></a>
+<FONT color="green">210</FONT>        private static  SentenceSplitter sentenceSplitter = null;<a name="line.210"></a>
+<FONT color="green">211</FONT>        private static SentenceSplitter getSentenceSplitter() throws Exception{<a name="line.211"></a>
+<FONT color="green">212</FONT>            <a name="line.212"></a>
+<FONT color="green">213</FONT>            if(sentenceSplitter == null)<a name="line.213"></a>
+<FONT color="green">214</FONT>            {<a name="line.214"></a>
+<FONT color="green">215</FONT>                sentenceSplitter = (SentenceSplitter)Factory.createResource(<a name="line.215"></a>
+<FONT color="green">216</FONT>                            "gate.creole.splitter.SentenceSplitter");<a name="line.216"></a>
+<FONT color="green">217</FONT>                sentenceSplitter.init();<a name="line.217"></a>
+<FONT color="green">218</FONT>            }<a name="line.218"></a>
+<FONT color="green">219</FONT>            return sentenceSplitter;<a name="line.219"></a>
+<FONT color="green">220</FONT>        }<a name="line.220"></a>
+<FONT color="green">221</FONT>     <a name="line.221"></a>
+<FONT color="green">222</FONT>        <a name="line.222"></a>
+<FONT color="green">223</FONT>    }<a name="line.223"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

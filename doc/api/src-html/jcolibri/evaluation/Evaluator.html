@@ -1,0 +1,97 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Evaluator.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 07/05/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.evaluation;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import jcolibri.cbraplications.StandardCBRApplication;<a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    /**<a name="line.13"></a>
+<FONT color="green">014</FONT>     * This abstract class defines the common behaviour of an evaluator.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * @author Juanan<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    public abstract class Evaluator {<a name="line.17"></a>
+<FONT color="green">018</FONT>            <a name="line.18"></a>
+<FONT color="green">019</FONT>            /** Initializes the evaluator with the CBR application to evaluate <a name="line.19"></a>
+<FONT color="green">020</FONT>             * @see jcolibri.cbraplications.StandardCBRApplication<a name="line.20"></a>
+<FONT color="green">021</FONT>             * */<a name="line.21"></a>
+<FONT color="green">022</FONT>            public abstract void init(StandardCBRApplication cbrApp);<a name="line.22"></a>
+<FONT color="green">023</FONT>            <a name="line.23"></a>
+<FONT color="green">024</FONT>            /** Object that stores the evaluation results */<a name="line.24"></a>
+<FONT color="green">025</FONT>            protected static EvaluationReport report;<a name="line.25"></a>
+<FONT color="green">026</FONT>            <a name="line.26"></a>
+<FONT color="green">027</FONT>            /** Returns the evaluation report */<a name="line.27"></a>
+<FONT color="green">028</FONT>            public static EvaluationReport getEvaluationReport(){<a name="line.28"></a>
+<FONT color="green">029</FONT>                    return report;<a name="line.29"></a>
+<FONT color="green">030</FONT>            }<a name="line.30"></a>
+<FONT color="green">031</FONT>    }<a name="line.31"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

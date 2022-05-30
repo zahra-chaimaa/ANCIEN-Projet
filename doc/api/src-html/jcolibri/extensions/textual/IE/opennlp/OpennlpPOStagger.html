@@ -1,0 +1,255 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * OpennlpPOStagger.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 20/06/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.extensions.textual.IE.opennlp;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.Collection;<a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    import jcolibri.cbrcore.Attribute;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import jcolibri.extensions.textual.IE.IEutils;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.extensions.textual.IE.representation.IEText;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.extensions.textual.IE.representation.Token;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import jcolibri.util.AttributeUtils;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import jcolibri.util.ProgressController;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import opennlp.grok.preprocess.postag.EnglishPOSTaggerME;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.jdom.Element;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    /**<a name="line.25"></a>
+<FONT color="green">026</FONT>     * Performs the POS tagging using a OpenNLP Maximum Entropy algorithm. This algorithm uses the same tags than GATE.<a name="line.26"></a>
+<FONT color="green">027</FONT>     * &lt;br&gt;<a name="line.27"></a>
+<FONT color="green">028</FONT>     * Part-Of-Speech tags (the original GATE set):<a name="line.28"></a>
+<FONT color="green">029</FONT>     * &lt;ul&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     * &lt;li&gt;CC - coordinating conjunction: ”and”, ”but”, ”nor”, ”or”, ”yet”, plus, minus, less, times (multiplication), over (division). Also ”for” (because) and ”so” (i.e., ”so that”).<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;li&gt;CD - cardinal number<a name="line.31"></a>
+<FONT color="green">032</FONT>     * &lt;li&gt;DT - determiner: Articles including ”a”, ”an”, ”every”, ”no”, ”the”, ”another”, ”any”, ”some”, ”those”.<a name="line.32"></a>
+<FONT color="green">033</FONT>     * &lt;li&gt;EX - existential there: Unstressed ”there” that triggers inversion of the inflected verb and the logical subject; ”There was a party in progress”.<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;li&gt;FW - foreign word<a name="line.34"></a>
+<FONT color="green">035</FONT>     * &lt;li&gt;IN - preposition or subordinating conjunction<a name="line.35"></a>
+<FONT color="green">036</FONT>     * &lt;li&gt;JJ - adjective: Hyphenated compounds that are used as modifiers; happy-go-lucky.<a name="line.36"></a>
+<FONT color="green">037</FONT>     * &lt;li&gt;JJR - adjective - comparative: Adjectives with the comparative ending ”-er” and a comparative meaning. Sometimes ”more” and ”less”.<a name="line.37"></a>
+<FONT color="green">038</FONT>     * &lt;li&gt;JJS - adjective - superlative: Adjectives with the superlative ending ”-est” (and ”worst”). Sometimes ”most”and ”least”.<a name="line.38"></a>
+<FONT color="green">039</FONT>     * &lt;li&gt;JJSS - -unknown-, but probably a variant of JJS<a name="line.39"></a>
+<FONT color="green">040</FONT>     * &lt;li&gt;-LRB- - -unknown-<a name="line.40"></a>
+<FONT color="green">041</FONT>     * &lt;li&gt;LS - list item marker: Numbers and letters used as identifiers of items in a list.<a name="line.41"></a>
+<FONT color="green">042</FONT>     * &lt;li&gt;MD - modal: All verbs that don’t take an ”-s” ending in the third person singular present: ”can”, ”could”, ”dare”, ”may”, ”might”, ”must”, ”ought”, ”shall”, ”should”, ”will”, ”would”.<a name="line.42"></a>
+<FONT color="green">043</FONT>     * &lt;li&gt;NN - noun - singular or mass<a name="line.43"></a>
+<FONT color="green">044</FONT>     * &lt;li&gt;NNP - proper noun - singular: All words in names usually are capitalized but titles might not be.<a name="line.44"></a>
+<FONT color="green">045</FONT>     * &lt;li&gt;NNPS - proper noun - plural: All words in names usually are capitalized but titles might not be.<a name="line.45"></a>
+<FONT color="green">046</FONT>     * &lt;li&gt;NNS - noun - plural<a name="line.46"></a>
+<FONT color="green">047</FONT>     * &lt;li&gt;NP - proper noun - singular<a name="line.47"></a>
+<FONT color="green">048</FONT>     * &lt;li&gt;ML Configuration 283<a name="line.48"></a>
+<FONT color="green">049</FONT>     * &lt;li&gt;NPS - proper noun - plural<a name="line.49"></a>
+<FONT color="green">050</FONT>     * &lt;li&gt;PDT - predeterminer: Determinerlike elements preceding an article or possessive pronoun;<a name="line.50"></a>
+<FONT color="green">051</FONT>     * &lt;li&gt;”all/PDT his marbles”, ”quite/PDT a mess”.<a name="line.51"></a>
+<FONT color="green">052</FONT>     * &lt;li&gt;POS - possesive ending: Nouns ending in ”’s” or ”’”.<a name="line.52"></a>
+<FONT color="green">053</FONT>     * &lt;li&gt;PP - personal pronoun<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;li&gt;PRPR$ - unknown-, but probably possessive pronoun<a name="line.54"></a>
+<FONT color="green">055</FONT>     * &lt;li&gt;PRP - unknown-, but probably possessive pronoun<a name="line.55"></a>
+<FONT color="green">056</FONT>     * &lt;li&gt;PRP$ - unknown, but probably possessive pronoun,such as ”my”, ”your”, ”his”, ”his”, ”its”, ”one’s”, ”our”, and ”their”.<a name="line.56"></a>
+<FONT color="green">057</FONT>     * &lt;li&gt;RB - adverb: most words ending in ”-ly”. Also ”quite”, ”too”, ”very”, ”enough”, ”indeed”, ”not”, ”-n’t”, and ”never”.<a name="line.57"></a>
+<FONT color="green">058</FONT>     * &lt;li&gt;RBR - adverb - comparative: adverbs ending with ”-er” with a comparative meaning.<a name="line.58"></a>
+<FONT color="green">059</FONT>     * &lt;li&gt;RBS - adverb - superlative<a name="line.59"></a>
+<FONT color="green">060</FONT>     * &lt;li&gt;RP - particle: Mostly monosyllabic words that also double as directional adverbs.<a name="line.60"></a>
+<FONT color="green">061</FONT>     * &lt;li&gt;STAART - start state marker (used internally)<a name="line.61"></a>
+<FONT color="green">062</FONT>     * &lt;li&gt;SYM - symbol: technical symbols or expressions that aren’t English words.<a name="line.62"></a>
+<FONT color="green">063</FONT>     * &lt;li&gt;TO - literal to<a name="line.63"></a>
+<FONT color="green">064</FONT>     * &lt;li&gt;UH - interjection: Such as ”my”, ”oh”, ”please”, ”uh”, ”well”, ”yes”.<a name="line.64"></a>
+<FONT color="green">065</FONT>     * &lt;li&gt;VBD - verb - past tense: includes conditional form of the verb ”to be”; ”If I were/VBD rich...”.<a name="line.65"></a>
+<FONT color="green">066</FONT>     * &lt;li&gt;VBG - verb - gerund or present participle<a name="line.66"></a>
+<FONT color="green">067</FONT>     * &lt;li&gt;VBN - verb - past participle<a name="line.67"></a>
+<FONT color="green">068</FONT>     * &lt;li&gt;VBP - verb - non-3rd person singular present<a name="line.68"></a>
+<FONT color="green">069</FONT>     * &lt;li&gt;VB - verb - base form: subsumes imperatives, infinitives and subjunctives.<a name="line.69"></a>
+<FONT color="green">070</FONT>     * &lt;li&gt;VBZ - verb - 3rd person singular present<a name="line.70"></a>
+<FONT color="green">071</FONT>     * &lt;li&gt;WDT - wh-determiner<a name="line.71"></a>
+<FONT color="green">072</FONT>     * &lt;li&gt;WP$ - possesive wh-pronoun: includes ”whose”<a name="line.72"></a>
+<FONT color="green">073</FONT>     * &lt;li&gt;WP - wh-pronoun: includes ”what”, ”who”, and ”whom”.<a name="line.73"></a>
+<FONT color="green">074</FONT>     * &lt;li&gt;WRB - wh-adverb: includes ”how”, ”where”, ”why”. Includes ”when” when used in a temporal sense.<a name="line.74"></a>
+<FONT color="green">075</FONT>     * &lt;li&gt;:: - literal colon<a name="line.75"></a>
+<FONT color="green">076</FONT>     * &lt;li&gt;, - literal comma<a name="line.76"></a>
+<FONT color="green">077</FONT>     * &lt;li&gt;$ - literal dollar sign<a name="line.77"></a>
+<FONT color="green">078</FONT>     * &lt;li&gt;- - literal double-dash<a name="line.78"></a>
+<FONT color="green">079</FONT>     * &lt;li&gt;- literal double quotes<a name="line.79"></a>
+<FONT color="green">080</FONT>     * &lt;li&gt;- literal grave<a name="line.80"></a>
+<FONT color="green">081</FONT>     * &lt;li&gt;( - literal left parenthesis<a name="line.81"></a>
+<FONT color="green">082</FONT>     * &lt;li&gt;. - literal period<a name="line.82"></a>
+<FONT color="green">083</FONT>     * &lt;li&gt;# - literal pound sign<a name="line.83"></a>
+<FONT color="green">084</FONT>     * &lt;li&gt;) - literal right parenthesis<a name="line.84"></a>
+<FONT color="green">085</FONT>     * &lt;li&gt;- literal single quote or apostrophe<a name="line.85"></a>
+<FONT color="green">086</FONT>     * &lt;/ul&gt;<a name="line.86"></a>
+<FONT color="green">087</FONT>     * <a name="line.87"></a>
+<FONT color="green">088</FONT>     * @author Juan A. Recio-Garcia<a name="line.88"></a>
+<FONT color="green">089</FONT>     * @version 2.0<a name="line.89"></a>
+<FONT color="green">090</FONT>     * <a name="line.90"></a>
+<FONT color="green">091</FONT>     */<a name="line.91"></a>
+<FONT color="green">092</FONT>    public class OpennlpPOStagger<a name="line.92"></a>
+<FONT color="green">093</FONT>    {<a name="line.93"></a>
+<FONT color="green">094</FONT>        <a name="line.94"></a>
+<FONT color="green">095</FONT>        /**<a name="line.95"></a>
+<FONT color="green">096</FONT>         * Performs the algorithm in the given attributes of a collection of cases.<a name="line.96"></a>
+<FONT color="green">097</FONT>         * These attributes must be IETextOpenNLP objects.<a name="line.97"></a>
+<FONT color="green">098</FONT>         */<a name="line.98"></a>
+<FONT color="green">099</FONT>        public static void tag(Collection&lt;CBRCase&gt; cases, Collection&lt;Attribute&gt; attributes)<a name="line.99"></a>
+<FONT color="green">100</FONT>        {<a name="line.100"></a>
+<FONT color="green">101</FONT>            org.apache.commons.logging.LogFactory.getLog(OpennlpPOStagger.class).info("OpenNLP POS tagging.");<a name="line.101"></a>
+<FONT color="green">102</FONT>            ProgressController.init(OpennlpPOStagger.class, "OpenNLP POS tagging", cases.size());<a name="line.102"></a>
+<FONT color="green">103</FONT>            for(CBRCase c: cases)<a name="line.103"></a>
+<FONT color="green">104</FONT>            {<a name="line.104"></a>
+<FONT color="green">105</FONT>                for(Attribute a: attributes)<a name="line.105"></a>
+<FONT color="green">106</FONT>                {<a name="line.106"></a>
+<FONT color="green">107</FONT>                    Object o = AttributeUtils.findValue(a, c);<a name="line.107"></a>
+<FONT color="green">108</FONT>                    if(o instanceof IETextOpenNLP)<a name="line.108"></a>
+<FONT color="green">109</FONT>                        tag((IETextOpenNLP)o);<a name="line.109"></a>
+<FONT color="green">110</FONT>                }<a name="line.110"></a>
+<FONT color="green">111</FONT>                ProgressController.step(OpennlpPOStagger.class);<a name="line.111"></a>
+<FONT color="green">112</FONT>            }<a name="line.112"></a>
+<FONT color="green">113</FONT>            ProgressController.finish(OpennlpPOStagger.class);<a name="line.113"></a>
+<FONT color="green">114</FONT>        }<a name="line.114"></a>
+<FONT color="green">115</FONT>    <a name="line.115"></a>
+<FONT color="green">116</FONT>        /**<a name="line.116"></a>
+<FONT color="green">117</FONT>         * Performs the algorithm in the given attributes of a query.<a name="line.117"></a>
+<FONT color="green">118</FONT>         * These attributes must be IETextOpenNLP objects.<a name="line.118"></a>
+<FONT color="green">119</FONT>         */<a name="line.119"></a>
+<FONT color="green">120</FONT>        public static void tag(CBRQuery query, Collection&lt;Attribute&gt; attributes)<a name="line.120"></a>
+<FONT color="green">121</FONT>        {<a name="line.121"></a>
+<FONT color="green">122</FONT>            org.apache.commons.logging.LogFactory.getLog(OpennlpPOStagger.class).info("OpenNLP POS tagging.");<a name="line.122"></a>
+<FONT color="green">123</FONT>                for(Attribute a: attributes)<a name="line.123"></a>
+<FONT color="green">124</FONT>                {<a name="line.124"></a>
+<FONT color="green">125</FONT>                    Object o = AttributeUtils.findValue(a, query);<a name="line.125"></a>
+<FONT color="green">126</FONT>                    if(o instanceof IETextOpenNLP)<a name="line.126"></a>
+<FONT color="green">127</FONT>                        tag((IETextOpenNLP)o);<a name="line.127"></a>
+<FONT color="green">128</FONT>                }<a name="line.128"></a>
+<FONT color="green">129</FONT>        }<a name="line.129"></a>
+<FONT color="green">130</FONT>        <a name="line.130"></a>
+<FONT color="green">131</FONT>        /**<a name="line.131"></a>
+<FONT color="green">132</FONT>         * Performs the algorithm in all the IETextOpenNLP typed attributes of a collection of cases.<a name="line.132"></a>
+<FONT color="green">133</FONT>         */<a name="line.133"></a>
+<FONT color="green">134</FONT>        public static void tag(Collection&lt;CBRCase&gt; cases)<a name="line.134"></a>
+<FONT color="green">135</FONT>        {<a name="line.135"></a>
+<FONT color="green">136</FONT>            org.apache.commons.logging.LogFactory.getLog(OpennlpPOStagger.class).info("OpenNLP POS tagging.");<a name="line.136"></a>
+<FONT color="green">137</FONT>            ProgressController.init(OpennlpPOStagger.class, "OpenNLP POS tagging", cases.size());<a name="line.137"></a>
+<FONT color="green">138</FONT>            for(CBRCase c: cases)<a name="line.138"></a>
+<FONT color="green">139</FONT>            {<a name="line.139"></a>
+<FONT color="green">140</FONT>                Collection&lt;IEText&gt; texts = IEutils.getTexts(c);<a name="line.140"></a>
+<FONT color="green">141</FONT>                for(IEText t : texts)<a name="line.141"></a>
+<FONT color="green">142</FONT>                    if(t instanceof IETextOpenNLP)<a name="line.142"></a>
+<FONT color="green">143</FONT>                        tag((IETextOpenNLP)t);<a name="line.143"></a>
+<FONT color="green">144</FONT>                ProgressController.step(OpennlpPOStagger.class);<a name="line.144"></a>
+<FONT color="green">145</FONT>            }<a name="line.145"></a>
+<FONT color="green">146</FONT>            ProgressController.finish(OpennlpPOStagger.class);<a name="line.146"></a>
+<FONT color="green">147</FONT>        }<a name="line.147"></a>
+<FONT color="green">148</FONT>        <a name="line.148"></a>
+<FONT color="green">149</FONT>        /**<a name="line.149"></a>
+<FONT color="green">150</FONT>         * Performs the algorithm in all the IETextOpenNLP typed attributes of a query.<a name="line.150"></a>
+<FONT color="green">151</FONT>         */ <a name="line.151"></a>
+<FONT color="green">152</FONT>        public static void tag(CBRQuery query)<a name="line.152"></a>
+<FONT color="green">153</FONT>        {       <a name="line.153"></a>
+<FONT color="green">154</FONT>            org.apache.commons.logging.LogFactory.getLog(OpennlpPOStagger.class).info("OpenNLP POS tagging.");<a name="line.154"></a>
+<FONT color="green">155</FONT>            Collection&lt;IEText&gt; texts = IEutils.getTexts(query);<a name="line.155"></a>
+<FONT color="green">156</FONT>            for(IEText t : texts)<a name="line.156"></a>
+<FONT color="green">157</FONT>                if(t instanceof IETextOpenNLP)<a name="line.157"></a>
+<FONT color="green">158</FONT>                    tag((IETextOpenNLP)t);<a name="line.158"></a>
+<FONT color="green">159</FONT>        }<a name="line.159"></a>
+<FONT color="green">160</FONT>        <a name="line.160"></a>
+<FONT color="green">161</FONT>        /**<a name="line.161"></a>
+<FONT color="green">162</FONT>         * Performs the algorithm in a given IETextOpenNLP object<a name="line.162"></a>
+<FONT color="green">163</FONT>         */<a name="line.163"></a>
+<FONT color="green">164</FONT>        public static void tag(IETextOpenNLP text)<a name="line.164"></a>
+<FONT color="green">165</FONT>        {<a name="line.165"></a>
+<FONT color="green">166</FONT>            EnglishPOSTaggerME tagger = getSentenceDetector();<a name="line.166"></a>
+<FONT color="green">167</FONT>            <a name="line.167"></a>
+<FONT color="green">168</FONT>            tagger.process(text.getDocument());<a name="line.168"></a>
+<FONT color="green">169</FONT>            <a name="line.169"></a>
+<FONT color="green">170</FONT>            for(Token t: text.getAllTokens())<a name="line.170"></a>
+<FONT color="green">171</FONT>            {<a name="line.171"></a>
+<FONT color="green">172</FONT>                Element elem = text.getTokenMapping(t);<a name="line.172"></a>
+<FONT color="green">173</FONT>                Element word = elem.getChild("w");<a name="line.173"></a>
+<FONT color="green">174</FONT>                String posTag = word.getAttributeValue("pos");<a name="line.174"></a>
+<FONT color="green">175</FONT>                t.setPostag(posTag);<a name="line.175"></a>
+<FONT color="green">176</FONT>            }<a name="line.176"></a>
+<FONT color="green">177</FONT>        }<a name="line.177"></a>
+<FONT color="green">178</FONT>        <a name="line.178"></a>
+<FONT color="green">179</FONT>        <a name="line.179"></a>
+<FONT color="green">180</FONT>        <a name="line.180"></a>
+<FONT color="green">181</FONT>        <a name="line.181"></a>
+<FONT color="green">182</FONT>        private static EnglishPOSTaggerME englishPOStagger = null;<a name="line.182"></a>
+<FONT color="green">183</FONT>        private static EnglishPOSTaggerME getSentenceDetector()<a name="line.183"></a>
+<FONT color="green">184</FONT>        {<a name="line.184"></a>
+<FONT color="green">185</FONT>            if(englishPOStagger == null)<a name="line.185"></a>
+<FONT color="green">186</FONT>                englishPOStagger = new EnglishPOSTaggerME();<a name="line.186"></a>
+<FONT color="green">187</FONT>            return englishPOStagger;<a name="line.187"></a>
+<FONT color="green">188</FONT>        }<a name="line.188"></a>
+<FONT color="green">189</FONT>    }<a name="line.189"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

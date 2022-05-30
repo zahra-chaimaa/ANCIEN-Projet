@@ -1,0 +1,863 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * SpamFilterToy.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 02/08/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.test.test16.gui;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.awt.BorderLayout;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.awt.Component;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.awt.Dimension;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import java.awt.GridLayout;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import java.awt.event.ActionEvent;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import java.awt.event.ActionListener;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import java.awt.event.WindowAdapter;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import java.awt.event.WindowEvent;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import javax.swing.BorderFactory;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import javax.swing.BoxLayout;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import javax.swing.ButtonGroup;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import javax.swing.JButton;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import javax.swing.JComponent;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import javax.swing.JFileChooser;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import javax.swing.JFrame;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import javax.swing.JLabel;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import javax.swing.JPanel;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import javax.swing.JRadioButton;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import javax.swing.JSpinner;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import javax.swing.JTextField;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import javax.swing.SpinnerNumberModel;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import javax.swing.UIManager;<a name="line.33"></a>
+<FONT color="green">034</FONT>    <a name="line.34"></a>
+<FONT color="green">035</FONT>    import jcolibri.cbrcore.CBRCaseBase;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import jcolibri.evaluation.EvaluationReport;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import jcolibri.evaluation.Evaluator;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import jcolibri.evaluation.evaluators.HoldOutEvaluator;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import jcolibri.evaluation.evaluators.LeaveOneOutEvaluator;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import jcolibri.evaluation.evaluators.NFoldEvaluator;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import jcolibri.evaluation.evaluators.SameSplitEvaluator;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import jcolibri.exception.ExecutionException;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import jcolibri.extensions.textual.IE.common.StopWordsDetector;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import jcolibri.extensions.textual.IE.common.TextStemmer;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import jcolibri.extensions.textual.IE.opennlp.OpennlpSplitter;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import jcolibri.extensions.visualization.CasesVisualization;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.LocalSimilarityFunction;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.compressionbased.CompressionBased;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.compressionbased.GZipCompressor;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.compressionbased.NormalisedCompression;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.textual.CosineCoefficient;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.textual.DiceCoefficient;<a name="line.52"></a>
+<FONT color="green">053</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.textual.JaccardCoefficient;<a name="line.53"></a>
+<FONT color="green">054</FONT>    import jcolibri.method.retrieve.KNNretrieval.similarity.local.textual.OverlapCoefficient;<a name="line.54"></a>
+<FONT color="green">055</FONT>    import jcolibri.method.reuse.classification.KNNClassificationMethod;<a name="line.55"></a>
+<FONT color="green">056</FONT>    import jcolibri.method.reuse.classification.MajorityVotingMethod;<a name="line.56"></a>
+<FONT color="green">057</FONT>    import jcolibri.method.reuse.classification.SimilarityWeightedVotingMethod;<a name="line.57"></a>
+<FONT color="green">058</FONT>    import jcolibri.test.test16.SpamFilterApp;<a name="line.58"></a>
+<FONT color="green">059</FONT>    import jcolibri.test.test8.SwingProgressBar;<a name="line.59"></a>
+<FONT color="green">060</FONT>    import jcolibri.util.ProgressController;<a name="line.60"></a>
+<FONT color="green">061</FONT>    import jcolibri.util.ProgressListener;<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+<FONT color="green">063</FONT>    /**<a name="line.63"></a>
+<FONT color="green">064</FONT>     * @author Juan A. Recio-Garcia<a name="line.64"></a>
+<FONT color="green">065</FONT>     * @version 1.0<a name="line.65"></a>
+<FONT color="green">066</FONT>     * <a name="line.66"></a>
+<FONT color="green">067</FONT>     */<a name="line.67"></a>
+<FONT color="green">068</FONT>    public class SpamFilterToy extends JFrame<a name="line.68"></a>
+<FONT color="green">069</FONT>    {<a name="line.69"></a>
+<FONT color="green">070</FONT>        private static final long serialVersionUID = 1L;<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>        JRadioButton corpus300;<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>        JRadioButton corpus600;<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>        JRadioButton leaveOneOut;<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>        JRadioButton holdOutFixed10;<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        JRadioButton holdOutFixed20;<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>        JRadioButton holdOutFixed30;<a name="line.82"></a>
+<FONT color="green">083</FONT>        <a name="line.83"></a>
+<FONT color="green">084</FONT>        JRadioButton sameSplit;<a name="line.84"></a>
+<FONT color="green">085</FONT>            <a name="line.85"></a>
+<FONT color="green">086</FONT>        JRadioButton sameSplitGenerate;<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        JButton saveSplit;<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>        JTextField sameSplitGenerateFile;<a name="line.90"></a>
+<FONT color="green">091</FONT>        <a name="line.91"></a>
+<FONT color="green">092</FONT>        JRadioButton sameSplitReuse;<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>        JButton loadSplit;<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>        JTextField sameSplitReuseFile;<a name="line.96"></a>
+<FONT color="green">097</FONT>        <a name="line.97"></a>
+<FONT color="green">098</FONT>        JLabel sameSplitGeneratePercent;<a name="line.98"></a>
+<FONT color="green">099</FONT>        <a name="line.99"></a>
+<FONT color="green">100</FONT>        SpinnerNumberModel sameSplitPercent;<a name="line.100"></a>
+<FONT color="green">101</FONT>    <a name="line.101"></a>
+<FONT color="green">102</FONT>        JSpinner sameSplitGeneratePercentSpinner;<a name="line.102"></a>
+<FONT color="green">103</FONT>    <a name="line.103"></a>
+<FONT color="green">104</FONT>        JRadioButton holdOut;<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>        JLabel holdOutLabel1;<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>        SpinnerNumberModel holdOutPercent;<a name="line.108"></a>
+<FONT color="green">109</FONT>    <a name="line.109"></a>
+<FONT color="green">110</FONT>        JSpinner holdOutPercentSpinner;<a name="line.110"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>        JLabel holdOutLabel2;<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>        SpinnerNumberModel holdOutRepetitions;<a name="line.114"></a>
+<FONT color="green">115</FONT>    <a name="line.115"></a>
+<FONT color="green">116</FONT>        JSpinner holdOutRepetitionsSpinner;<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>        JRadioButton nFold;<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        JLabel nFoldLabel1;<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
+<FONT color="green">122</FONT>        SpinnerNumberModel nFoldFolds;<a name="line.122"></a>
+<FONT color="green">123</FONT>    <a name="line.123"></a>
+<FONT color="green">124</FONT>        JSpinner nFoldFoldsSpinner;<a name="line.124"></a>
+<FONT color="green">125</FONT>    <a name="line.125"></a>
+<FONT color="green">126</FONT>        JLabel nFoldLabel2;<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        SpinnerNumberModel nFoldRepetitions;<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>        JSpinner nFoldRepetitionsSpinner;<a name="line.130"></a>
+<FONT color="green">131</FONT>    <a name="line.131"></a>
+<FONT color="green">132</FONT>        JRadioButton compressionBased;<a name="line.132"></a>
+<FONT color="green">133</FONT>    <a name="line.133"></a>
+<FONT color="green">134</FONT>        JRadioButton normalizedCompression;<a name="line.134"></a>
+<FONT color="green">135</FONT>    <a name="line.135"></a>
+<FONT color="green">136</FONT>        JRadioButton cosine;<a name="line.136"></a>
+<FONT color="green">137</FONT>    <a name="line.137"></a>
+<FONT color="green">138</FONT>        JRadioButton dice;<a name="line.138"></a>
+<FONT color="green">139</FONT>    <a name="line.139"></a>
+<FONT color="green">140</FONT>        JRadioButton jaccard;<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>        JRadioButton overlap;<a name="line.142"></a>
+<FONT color="green">143</FONT>    <a name="line.143"></a>
+<FONT color="green">144</FONT>        JRadioButton majorityVoting;<a name="line.144"></a>
+<FONT color="green">145</FONT>    <a name="line.145"></a>
+<FONT color="green">146</FONT>        JRadioButton weightedVoting;<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>        SpinnerNumberModel kValue;<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>        JSpinner kValueSpinner;<a name="line.150"></a>
+<FONT color="green">151</FONT>    <a name="line.151"></a>
+<FONT color="green">152</FONT>        JButton evaluate;<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>        JButton visualize;<a name="line.154"></a>
+<FONT color="green">155</FONT>    <a name="line.155"></a>
+<FONT color="green">156</FONT>        <a name="line.156"></a>
+<FONT color="green">157</FONT>        <a name="line.157"></a>
+<FONT color="green">158</FONT>        <a name="line.158"></a>
+<FONT color="green">159</FONT>        public SpamFilterToy()<a name="line.159"></a>
+<FONT color="green">160</FONT>        {<a name="line.160"></a>
+<FONT color="green">161</FONT>            configure();<a name="line.161"></a>
+<FONT color="green">162</FONT>        }<a name="line.162"></a>
+<FONT color="green">163</FONT>    <a name="line.163"></a>
+<FONT color="green">164</FONT>        public void configure()<a name="line.164"></a>
+<FONT color="green">165</FONT>        {<a name="line.165"></a>
+<FONT color="green">166</FONT>            try<a name="line.166"></a>
+<FONT color="green">167</FONT>            {<a name="line.167"></a>
+<FONT color="green">168</FONT>                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());<a name="line.168"></a>
+<FONT color="green">169</FONT>            } catch (Exception e)<a name="line.169"></a>
+<FONT color="green">170</FONT>            {<a name="line.170"></a>
+<FONT color="green">171</FONT>            }<a name="line.171"></a>
+<FONT color="green">172</FONT>            <a name="line.172"></a>
+<FONT color="green">173</FONT>            /** ****** Corpus Panel ************ */<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>            JPanel corpusPanel = new JPanel();<a name="line.175"></a>
+<FONT color="green">176</FONT>            corpusPanel.setLayout(new GridLayout(2, 1));<a name="line.176"></a>
+<FONT color="green">177</FONT>            corpusPanel.setBorder(BorderFactory.createTitledBorder("Corpus"));<a name="line.177"></a>
+<FONT color="green">178</FONT>    <a name="line.178"></a>
+<FONT color="green">179</FONT>            corpus300 = new JRadioButton("Corpus - 300 emails");<a name="line.179"></a>
+<FONT color="green">180</FONT>            corpus600 = new JRadioButton("Corpus - 600 emails");<a name="line.180"></a>
+<FONT color="green">181</FONT>    <a name="line.181"></a>
+<FONT color="green">182</FONT>            ButtonGroup corpusGroup = new ButtonGroup();<a name="line.182"></a>
+<FONT color="green">183</FONT>            corpusGroup.add(corpus300);<a name="line.183"></a>
+<FONT color="green">184</FONT>            corpusGroup.add(corpus600);<a name="line.184"></a>
+<FONT color="green">185</FONT>    <a name="line.185"></a>
+<FONT color="green">186</FONT>            corpusPanel.add(corpus300);<a name="line.186"></a>
+<FONT color="green">187</FONT>            corpusPanel.add(corpus600);<a name="line.187"></a>
+<FONT color="green">188</FONT>    <a name="line.188"></a>
+<FONT color="green">189</FONT>            corpus300.setSelected(true);<a name="line.189"></a>
+<FONT color="green">190</FONT>    <a name="line.190"></a>
+<FONT color="green">191</FONT>            /** ****** Evaluator Panel ************ */<a name="line.191"></a>
+<FONT color="green">192</FONT>    <a name="line.192"></a>
+<FONT color="green">193</FONT>            JPanel evaluatorPanel = new JPanel();<a name="line.193"></a>
+<FONT color="green">194</FONT>            evaluatorPanel.setBorder(BorderFactory.createTitledBorder("Evaluator"));<a name="line.194"></a>
+<FONT color="green">195</FONT>            evaluatorPanel.setLayout(new BoxLayout(evaluatorPanel, BoxLayout.Y_AXIS));<a name="line.195"></a>
+<FONT color="green">196</FONT>    <a name="line.196"></a>
+<FONT color="green">197</FONT>            leaveOneOut = new JRadioButton("Leave One Out");<a name="line.197"></a>
+<FONT color="green">198</FONT>            leaveOneOut.addActionListener(new ActionListener() {<a name="line.198"></a>
+<FONT color="green">199</FONT>                public void actionPerformed(ActionEvent e)<a name="line.199"></a>
+<FONT color="green">200</FONT>                {<a name="line.200"></a>
+<FONT color="green">201</FONT>                    enableGroup("none");<a name="line.201"></a>
+<FONT color="green">202</FONT>                }<a name="line.202"></a>
+<FONT color="green">203</FONT>            });<a name="line.203"></a>
+<FONT color="green">204</FONT>    <a name="line.204"></a>
+<FONT color="green">205</FONT>            holdOutFixed10 = new JRadioButton("Hold Out - Query Set Fixed 10%");<a name="line.205"></a>
+<FONT color="green">206</FONT>            holdOutFixed10.addActionListener(new ActionListener() {<a name="line.206"></a>
+<FONT color="green">207</FONT>                public void actionPerformed(ActionEvent e)<a name="line.207"></a>
+<FONT color="green">208</FONT>                {<a name="line.208"></a>
+<FONT color="green">209</FONT>                    enableGroup("none");<a name="line.209"></a>
+<FONT color="green">210</FONT>                }<a name="line.210"></a>
+<FONT color="green">211</FONT>            });<a name="line.211"></a>
+<FONT color="green">212</FONT>            holdOutFixed20 = new JRadioButton("Hold Out - Query Set Fixed 20%");<a name="line.212"></a>
+<FONT color="green">213</FONT>            holdOutFixed20.addActionListener(new ActionListener() {<a name="line.213"></a>
+<FONT color="green">214</FONT>                public void actionPerformed(ActionEvent e)<a name="line.214"></a>
+<FONT color="green">215</FONT>                {<a name="line.215"></a>
+<FONT color="green">216</FONT>                    enableGroup("none");<a name="line.216"></a>
+<FONT color="green">217</FONT>                }<a name="line.217"></a>
+<FONT color="green">218</FONT>            });<a name="line.218"></a>
+<FONT color="green">219</FONT>            holdOutFixed30 = new JRadioButton("Hold Out - Query Set Fixed 30%");<a name="line.219"></a>
+<FONT color="green">220</FONT>            holdOutFixed30.addActionListener(new ActionListener() {<a name="line.220"></a>
+<FONT color="green">221</FONT>                public void actionPerformed(ActionEvent e)<a name="line.221"></a>
+<FONT color="green">222</FONT>                {<a name="line.222"></a>
+<FONT color="green">223</FONT>                    enableGroup("none");<a name="line.223"></a>
+<FONT color="green">224</FONT>                }<a name="line.224"></a>
+<FONT color="green">225</FONT>            });<a name="line.225"></a>
+<FONT color="green">226</FONT>    <a name="line.226"></a>
+<FONT color="green">227</FONT>            <a name="line.227"></a>
+<FONT color="green">228</FONT>            sameSplit = new JRadioButton("Hold Out - Query Set Custom");<a name="line.228"></a>
+<FONT color="green">229</FONT>            sameSplit.addActionListener(new ActionListener() {<a name="line.229"></a>
+<FONT color="green">230</FONT>                public void actionPerformed(ActionEvent e)<a name="line.230"></a>
+<FONT color="green">231</FONT>                {<a name="line.231"></a>
+<FONT color="green">232</FONT>                    enableGroup("samesplit");<a name="line.232"></a>
+<FONT color="green">233</FONT>                }<a name="line.233"></a>
+<FONT color="green">234</FONT>            });<a name="line.234"></a>
+<FONT color="green">235</FONT>            <a name="line.235"></a>
+<FONT color="green">236</FONT>            JPanel sameSplitPanel = new JPanel();<a name="line.236"></a>
+<FONT color="green">237</FONT>            sameSplitPanel.setLayout(new BoxLayout(sameSplitPanel, BoxLayout.Y_AXIS));<a name="line.237"></a>
+<FONT color="green">238</FONT>            sameSplitPanel.setBorder(BorderFactory.createEmptyBorder(2,15,2,2));<a name="line.238"></a>
+<FONT color="green">239</FONT>            <a name="line.239"></a>
+<FONT color="green">240</FONT>            JPanel sameSplitPanel1 = new JPanel();<a name="line.240"></a>
+<FONT color="green">241</FONT>            sameSplitGenerate = new JRadioButton("Generate New Query Set &amp; Evaluate");<a name="line.241"></a>
+<FONT color="green">242</FONT>            sameSplitGenerate.addActionListener(new ActionListener() {<a name="line.242"></a>
+<FONT color="green">243</FONT>                public void actionPerformed(ActionEvent e)<a name="line.243"></a>
+<FONT color="green">244</FONT>                {<a name="line.244"></a>
+<FONT color="green">245</FONT>                    loadSplit.setEnabled(false);<a name="line.245"></a>
+<FONT color="green">246</FONT>                    sameSplitReuseFile.setEnabled(false);<a name="line.246"></a>
+<FONT color="green">247</FONT>                    saveSplit.setEnabled(true);<a name="line.247"></a>
+<FONT color="green">248</FONT>                    sameSplitGenerateFile.setEnabled(true);<a name="line.248"></a>
+<FONT color="green">249</FONT>                    sameSplitGeneratePercentSpinner.setEnabled(true);<a name="line.249"></a>
+<FONT color="green">250</FONT>                    sameSplitGeneratePercent.setEnabled(true);<a name="line.250"></a>
+<FONT color="green">251</FONT>                }<a name="line.251"></a>
+<FONT color="green">252</FONT>            });<a name="line.252"></a>
+<FONT color="green">253</FONT>            saveSplit = new JButton("Save Query Set");      <a name="line.253"></a>
+<FONT color="green">254</FONT>            sameSplitGenerateFile = new JTextField(20);<a name="line.254"></a>
+<FONT color="green">255</FONT>            saveSplit.addActionListener(new ActionListener() {<a name="line.255"></a>
+<FONT color="green">256</FONT>                public void actionPerformed(ActionEvent e)<a name="line.256"></a>
+<FONT color="green">257</FONT>                {<a name="line.257"></a>
+<FONT color="green">258</FONT>                    JFileChooser jfc = new JFileChooser(".");<a name="line.258"></a>
+<FONT color="green">259</FONT>                    int returnVal = jfc.showSaveDialog(null);<a name="line.259"></a>
+<FONT color="green">260</FONT>                    if(returnVal == JFileChooser.APPROVE_OPTION)<a name="line.260"></a>
+<FONT color="green">261</FONT>                        sameSplitGenerateFile.setText(jfc.getSelectedFile().toString());<a name="line.261"></a>
+<FONT color="green">262</FONT>                }<a name="line.262"></a>
+<FONT color="green">263</FONT>            });<a name="line.263"></a>
+<FONT color="green">264</FONT>    <a name="line.264"></a>
+<FONT color="green">265</FONT>            JPanel sameSplitPanel1b = new JPanel();<a name="line.265"></a>
+<FONT color="green">266</FONT>            sameSplitGeneratePercent = new JLabel("Query Set percent:");<a name="line.266"></a>
+<FONT color="green">267</FONT>            sameSplitPercent = new SpinnerNumberModel(10, 5, 95, 5);<a name="line.267"></a>
+<FONT color="green">268</FONT>            sameSplitGeneratePercentSpinner = new JSpinner(sameSplitPercent);<a name="line.268"></a>
+<FONT color="green">269</FONT>            <a name="line.269"></a>
+<FONT color="green">270</FONT>            <a name="line.270"></a>
+<FONT color="green">271</FONT>            JPanel sameSplitPanel2 = new JPanel();  <a name="line.271"></a>
+<FONT color="green">272</FONT>            sameSplitReuse = new JRadioButton("Evaluate Using Existing Query Set");<a name="line.272"></a>
+<FONT color="green">273</FONT>            sameSplitReuse.addActionListener(new ActionListener() {<a name="line.273"></a>
+<FONT color="green">274</FONT>                public void actionPerformed(ActionEvent e)<a name="line.274"></a>
+<FONT color="green">275</FONT>                {<a name="line.275"></a>
+<FONT color="green">276</FONT>                    loadSplit.setEnabled(true);<a name="line.276"></a>
+<FONT color="green">277</FONT>                    sameSplitReuseFile.setEnabled(true);<a name="line.277"></a>
+<FONT color="green">278</FONT>                    saveSplit.setEnabled(false);<a name="line.278"></a>
+<FONT color="green">279</FONT>                    sameSplitGenerateFile.setEnabled(false);<a name="line.279"></a>
+<FONT color="green">280</FONT>                    sameSplitGeneratePercentSpinner.setEnabled(false);<a name="line.280"></a>
+<FONT color="green">281</FONT>                    sameSplitGeneratePercent.setEnabled(false);<a name="line.281"></a>
+<FONT color="green">282</FONT>                }<a name="line.282"></a>
+<FONT color="green">283</FONT>            });<a name="line.283"></a>
+<FONT color="green">284</FONT>            loadSplit = new JButton("Open Query Set");<a name="line.284"></a>
+<FONT color="green">285</FONT>            sameSplitReuseFile = new JTextField(20);<a name="line.285"></a>
+<FONT color="green">286</FONT>            loadSplit.addActionListener(new ActionListener() {<a name="line.286"></a>
+<FONT color="green">287</FONT>                public void actionPerformed(ActionEvent e)<a name="line.287"></a>
+<FONT color="green">288</FONT>                {<a name="line.288"></a>
+<FONT color="green">289</FONT>                    JFileChooser jfc = new JFileChooser(".");<a name="line.289"></a>
+<FONT color="green">290</FONT>                    int returnVal = jfc.showOpenDialog(null);<a name="line.290"></a>
+<FONT color="green">291</FONT>                    if(returnVal == JFileChooser.APPROVE_OPTION)<a name="line.291"></a>
+<FONT color="green">292</FONT>                        sameSplitReuseFile.setText(jfc.getSelectedFile().toString());<a name="line.292"></a>
+<FONT color="green">293</FONT>                }<a name="line.293"></a>
+<FONT color="green">294</FONT>            });<a name="line.294"></a>
+<FONT color="green">295</FONT>    <a name="line.295"></a>
+<FONT color="green">296</FONT>    <a name="line.296"></a>
+<FONT color="green">297</FONT>            sameSplitPanel1.add(saveSplit);<a name="line.297"></a>
+<FONT color="green">298</FONT>            sameSplitPanel1.add(sameSplitGenerateFile);<a name="line.298"></a>
+<FONT color="green">299</FONT>            sameSplitPanel1b.add(sameSplitGeneratePercent);<a name="line.299"></a>
+<FONT color="green">300</FONT>            sameSplitPanel1b.add(sameSplitGeneratePercentSpinner);<a name="line.300"></a>
+<FONT color="green">301</FONT>            sameSplitPanel2.add(loadSplit);<a name="line.301"></a>
+<FONT color="green">302</FONT>            sameSplitPanel2.add(sameSplitReuseFile);<a name="line.302"></a>
+<FONT color="green">303</FONT>            <a name="line.303"></a>
+<FONT color="green">304</FONT>            sameSplitPanel.add(sameSplitGenerate);<a name="line.304"></a>
+<FONT color="green">305</FONT>            sameSplitPanel.add(sameSplitPanel1);<a name="line.305"></a>
+<FONT color="green">306</FONT>            sameSplitPanel.add(sameSplitPanel1b);<a name="line.306"></a>
+<FONT color="green">307</FONT>            sameSplitPanel.add(sameSplitReuse);<a name="line.307"></a>
+<FONT color="green">308</FONT>            sameSplitPanel.add(sameSplitPanel2);<a name="line.308"></a>
+<FONT color="green">309</FONT>            sameSplitPanel1.setAlignmentX(JComponent.LEFT_ALIGNMENT);<a name="line.309"></a>
+<FONT color="green">310</FONT>            sameSplitPanel2.setAlignmentX(JComponent.LEFT_ALIGNMENT);<a name="line.310"></a>
+<FONT color="green">311</FONT>            sameSplitPanel1b.setAlignmentX(JComponent.LEFT_ALIGNMENT);<a name="line.311"></a>
+<FONT color="green">312</FONT>            <a name="line.312"></a>
+<FONT color="green">313</FONT>            ButtonGroup sameSplitGroup = new ButtonGroup();<a name="line.313"></a>
+<FONT color="green">314</FONT>            sameSplitGroup.add(sameSplitGenerate);<a name="line.314"></a>
+<FONT color="green">315</FONT>            sameSplitGroup.add(sameSplitReuse);<a name="line.315"></a>
+<FONT color="green">316</FONT>            <a name="line.316"></a>
+<FONT color="green">317</FONT>            sameSplitGenerate.setSelected(true);<a name="line.317"></a>
+<FONT color="green">318</FONT>            loadSplit.setEnabled(false);<a name="line.318"></a>
+<FONT color="green">319</FONT>            sameSplitReuseFile.setEnabled(false);<a name="line.319"></a>
+<FONT color="green">320</FONT>            <a name="line.320"></a>
+<FONT color="green">321</FONT>            holdOut = new JRadioButton("Hold Out - Query Set Random");<a name="line.321"></a>
+<FONT color="green">322</FONT>            holdOut.addActionListener(new ActionListener() {<a name="line.322"></a>
+<FONT color="green">323</FONT>                public void actionPerformed(ActionEvent e)<a name="line.323"></a>
+<FONT color="green">324</FONT>                {<a name="line.324"></a>
+<FONT color="green">325</FONT>                    enableGroup("holdout");<a name="line.325"></a>
+<FONT color="green">326</FONT>                }<a name="line.326"></a>
+<FONT color="green">327</FONT>            });<a name="line.327"></a>
+<FONT color="green">328</FONT>    <a name="line.328"></a>
+<FONT color="green">329</FONT>            JPanel holdOutOptions = new JPanel();<a name="line.329"></a>
+<FONT color="green">330</FONT>            holdOutLabel1 = new JLabel("Query Set Percent");<a name="line.330"></a>
+<FONT color="green">331</FONT>            holdOutOptions.add(holdOutLabel1);<a name="line.331"></a>
+<FONT color="green">332</FONT>            holdOutPercent = new SpinnerNumberModel(10, 5, 95, 5);<a name="line.332"></a>
+<FONT color="green">333</FONT>            holdOutPercentSpinner = new JSpinner(holdOutPercent);<a name="line.333"></a>
+<FONT color="green">334</FONT>            holdOutOptions.add(holdOutPercentSpinner);<a name="line.334"></a>
+<FONT color="green">335</FONT>            holdOutLabel2 = new JLabel("Repetitions");<a name="line.335"></a>
+<FONT color="green">336</FONT>            holdOutOptions.add(holdOutLabel2);<a name="line.336"></a>
+<FONT color="green">337</FONT>            holdOutRepetitions = new SpinnerNumberModel(1, 1, 10, 1);<a name="line.337"></a>
+<FONT color="green">338</FONT>            holdOutRepetitionsSpinner = new JSpinner(holdOutRepetitions);<a name="line.338"></a>
+<FONT color="green">339</FONT>            holdOutOptions.add(holdOutRepetitionsSpinner);<a name="line.339"></a>
+<FONT color="green">340</FONT>    <a name="line.340"></a>
+<FONT color="green">341</FONT>            nFold = new JRadioButton("N-Fold - Random");<a name="line.341"></a>
+<FONT color="green">342</FONT>            nFold.addActionListener(new ActionListener() {<a name="line.342"></a>
+<FONT color="green">343</FONT>                public void actionPerformed(ActionEvent e)<a name="line.343"></a>
+<FONT color="green">344</FONT>                {<a name="line.344"></a>
+<FONT color="green">345</FONT>                    enableGroup("nfold");<a name="line.345"></a>
+<FONT color="green">346</FONT>                }<a name="line.346"></a>
+<FONT color="green">347</FONT>            });<a name="line.347"></a>
+<FONT color="green">348</FONT>    <a name="line.348"></a>
+<FONT color="green">349</FONT>            JPanel nFoldOptions = new JPanel();<a name="line.349"></a>
+<FONT color="green">350</FONT>            nFoldLabel1 = new JLabel("Folds");<a name="line.350"></a>
+<FONT color="green">351</FONT>            nFoldOptions.add(nFoldLabel1);<a name="line.351"></a>
+<FONT color="green">352</FONT>            nFoldFolds = new SpinnerNumberModel(4, 2, 10, 1);<a name="line.352"></a>
+<FONT color="green">353</FONT>            nFoldFoldsSpinner = new JSpinner(nFoldFolds);<a name="line.353"></a>
+<FONT color="green">354</FONT>            nFoldOptions.add(nFoldFoldsSpinner);<a name="line.354"></a>
+<FONT color="green">355</FONT>            nFoldLabel2 = new JLabel("Repetitions");<a name="line.355"></a>
+<FONT color="green">356</FONT>            nFoldOptions.add(nFoldLabel2);<a name="line.356"></a>
+<FONT color="green">357</FONT>            nFoldRepetitions = new SpinnerNumberModel(1, 1, 10, 1);<a name="line.357"></a>
+<FONT color="green">358</FONT>            nFoldRepetitionsSpinner = new JSpinner(nFoldRepetitions);<a name="line.358"></a>
+<FONT color="green">359</FONT>            nFoldOptions.add(nFoldRepetitionsSpinner);<a name="line.359"></a>
+<FONT color="green">360</FONT>    <a name="line.360"></a>
+<FONT color="green">361</FONT>            ButtonGroup evaluatorGroup = new ButtonGroup();<a name="line.361"></a>
+<FONT color="green">362</FONT>            evaluatorGroup.add(leaveOneOut);<a name="line.362"></a>
+<FONT color="green">363</FONT>            evaluatorGroup.add(holdOutFixed10);<a name="line.363"></a>
+<FONT color="green">364</FONT>            evaluatorGroup.add(holdOutFixed20);<a name="line.364"></a>
+<FONT color="green">365</FONT>            evaluatorGroup.add(holdOutFixed30);<a name="line.365"></a>
+<FONT color="green">366</FONT>            evaluatorGroup.add(sameSplit);<a name="line.366"></a>
+<FONT color="green">367</FONT>            evaluatorGroup.add(holdOut);<a name="line.367"></a>
+<FONT color="green">368</FONT>            evaluatorGroup.add(nFold);<a name="line.368"></a>
+<FONT color="green">369</FONT>    <a name="line.369"></a>
+<FONT color="green">370</FONT>            evaluatorPanel.add(leaveOneOut);<a name="line.370"></a>
+<FONT color="green">371</FONT>            evaluatorPanel.add(holdOutFixed10);<a name="line.371"></a>
+<FONT color="green">372</FONT>            evaluatorPanel.add(holdOutFixed20);<a name="line.372"></a>
+<FONT color="green">373</FONT>            evaluatorPanel.add(holdOutFixed30);<a name="line.373"></a>
+<FONT color="green">374</FONT>            evaluatorPanel.add(holdOut);<a name="line.374"></a>
+<FONT color="green">375</FONT>            evaluatorPanel.add(holdOutOptions);<a name="line.375"></a>
+<FONT color="green">376</FONT>            evaluatorPanel.add(nFold);<a name="line.376"></a>
+<FONT color="green">377</FONT>            evaluatorPanel.add(nFoldOptions);<a name="line.377"></a>
+<FONT color="green">378</FONT>            evaluatorPanel.add(sameSplit);<a name="line.378"></a>
+<FONT color="green">379</FONT>            evaluatorPanel.add(sameSplitPanel);<a name="line.379"></a>
+<FONT color="green">380</FONT>    <a name="line.380"></a>
+<FONT color="green">381</FONT>            leaveOneOut.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.381"></a>
+<FONT color="green">382</FONT>            holdOutFixed10.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.382"></a>
+<FONT color="green">383</FONT>            holdOutFixed20.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.383"></a>
+<FONT color="green">384</FONT>            holdOutFixed30.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.384"></a>
+<FONT color="green">385</FONT>            sameSplit.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.385"></a>
+<FONT color="green">386</FONT>            sameSplitPanel.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.386"></a>
+<FONT color="green">387</FONT>            holdOut.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.387"></a>
+<FONT color="green">388</FONT>            holdOutOptions.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.388"></a>
+<FONT color="green">389</FONT>            nFold.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.389"></a>
+<FONT color="green">390</FONT>            nFoldOptions.setAlignmentX(Component.LEFT_ALIGNMENT);<a name="line.390"></a>
+<FONT color="green">391</FONT>    <a name="line.391"></a>
+<FONT color="green">392</FONT>    <a name="line.392"></a>
+<FONT color="green">393</FONT>            <a name="line.393"></a>
+<FONT color="green">394</FONT>            leaveOneOut.setSelected(true);<a name="line.394"></a>
+<FONT color="green">395</FONT>    <a name="line.395"></a>
+<FONT color="green">396</FONT>            this.setEnabledHoldOut(false);<a name="line.396"></a>
+<FONT color="green">397</FONT>            this.setEnabledNFold(false);<a name="line.397"></a>
+<FONT color="green">398</FONT>            this.setEnabledSameSplit(false);<a name="line.398"></a>
+<FONT color="green">399</FONT>    <a name="line.399"></a>
+<FONT color="green">400</FONT>            /** ****** Similarity Panel ************ */<a name="line.400"></a>
+<FONT color="green">401</FONT>    <a name="line.401"></a>
+<FONT color="green">402</FONT>            JPanel similPanel = new JPanel();<a name="line.402"></a>
+<FONT color="green">403</FONT>            similPanel.setBorder(BorderFactory.createTitledBorder("Similarity Function"));<a name="line.403"></a>
+<FONT color="green">404</FONT>            similPanel.setLayout(new GridLayout(6, 1));<a name="line.404"></a>
+<FONT color="green">405</FONT>    <a name="line.405"></a>
+<FONT color="green">406</FONT>            compressionBased = new JRadioButton("Compression");<a name="line.406"></a>
+<FONT color="green">407</FONT>            normalizedCompression = new JRadioButton("Normalized Compression");<a name="line.407"></a>
+<FONT color="green">408</FONT>            cosine = new JRadioButton("Cosine Coefficient");<a name="line.408"></a>
+<FONT color="green">409</FONT>            dice = new JRadioButton("Dice Coefficient");<a name="line.409"></a>
+<FONT color="green">410</FONT>            jaccard = new JRadioButton("Jaccard Coefficient");<a name="line.410"></a>
+<FONT color="green">411</FONT>            overlap = new JRadioButton("Overlap Coefficient");<a name="line.411"></a>
+<FONT color="green">412</FONT>    <a name="line.412"></a>
+<FONT color="green">413</FONT>            ButtonGroup similGroup = new ButtonGroup();<a name="line.413"></a>
+<FONT color="green">414</FONT>            similGroup.add(compressionBased);<a name="line.414"></a>
+<FONT color="green">415</FONT>            similGroup.add(normalizedCompression);<a name="line.415"></a>
+<FONT color="green">416</FONT>            similGroup.add(cosine);<a name="line.416"></a>
+<FONT color="green">417</FONT>            similGroup.add(dice);<a name="line.417"></a>
+<FONT color="green">418</FONT>            similGroup.add(jaccard);<a name="line.418"></a>
+<FONT color="green">419</FONT>            similGroup.add(overlap);<a name="line.419"></a>
+<FONT color="green">420</FONT>    <a name="line.420"></a>
+<FONT color="green">421</FONT>            similPanel.add(compressionBased);<a name="line.421"></a>
+<FONT color="green">422</FONT>            similPanel.add(normalizedCompression);<a name="line.422"></a>
+<FONT color="green">423</FONT>            similPanel.add(cosine);<a name="line.423"></a>
+<FONT color="green">424</FONT>            similPanel.add(dice);<a name="line.424"></a>
+<FONT color="green">425</FONT>            similPanel.add(jaccard);<a name="line.425"></a>
+<FONT color="green">426</FONT>            similPanel.add(overlap);<a name="line.426"></a>
+<FONT color="green">427</FONT>    <a name="line.427"></a>
+<FONT color="green">428</FONT>            compressionBased.setSelected(true);<a name="line.428"></a>
+<FONT color="green">429</FONT>    <a name="line.429"></a>
+<FONT color="green">430</FONT>            /** ****** Corpus Panel ************ */<a name="line.430"></a>
+<FONT color="green">431</FONT>    <a name="line.431"></a>
+<FONT color="green">432</FONT>            JPanel clasifPanel = new JPanel();<a name="line.432"></a>
+<FONT color="green">433</FONT>            clasifPanel.setBorder(BorderFactory.createTitledBorder("KNN Classification Method"));<a name="line.433"></a>
+<FONT color="green">434</FONT>            clasifPanel.setLayout(new GridLayout(3, 1));<a name="line.434"></a>
+<FONT color="green">435</FONT>    <a name="line.435"></a>
+<FONT color="green">436</FONT>            majorityVoting = new JRadioButton("Majority Voting Method");<a name="line.436"></a>
+<FONT color="green">437</FONT>            weightedVoting = new JRadioButton("Weighted Voting Method");<a name="line.437"></a>
+<FONT color="green">438</FONT>    <a name="line.438"></a>
+<FONT color="green">439</FONT>            JPanel kPanel = new JPanel();<a name="line.439"></a>
+<FONT color="green">440</FONT>            kPanel.add(new JLabel("K value"));<a name="line.440"></a>
+<FONT color="green">441</FONT>            kValue = new SpinnerNumberModel(3, 1, 10, 1);<a name="line.441"></a>
+<FONT color="green">442</FONT>            kValueSpinner = new JSpinner(kValue);<a name="line.442"></a>
+<FONT color="green">443</FONT>            kPanel.add(kValueSpinner);<a name="line.443"></a>
+<FONT color="green">444</FONT>    <a name="line.444"></a>
+<FONT color="green">445</FONT>            ButtonGroup clasifGroup = new ButtonGroup();<a name="line.445"></a>
+<FONT color="green">446</FONT>            clasifGroup.add(majorityVoting);<a name="line.446"></a>
+<FONT color="green">447</FONT>            clasifGroup.add(weightedVoting);<a name="line.447"></a>
+<FONT color="green">448</FONT>    <a name="line.448"></a>
+<FONT color="green">449</FONT>            clasifPanel.add(weightedVoting);<a name="line.449"></a>
+<FONT color="green">450</FONT>            clasifPanel.add(majorityVoting);<a name="line.450"></a>
+<FONT color="green">451</FONT>            clasifPanel.add(kPanel);<a name="line.451"></a>
+<FONT color="green">452</FONT>    <a name="line.452"></a>
+<FONT color="green">453</FONT>            weightedVoting.setSelected(true);<a name="line.453"></a>
+<FONT color="green">454</FONT>    <a name="line.454"></a>
+<FONT color="green">455</FONT>            /** ********* Buttons ********** */<a name="line.455"></a>
+<FONT color="green">456</FONT>    <a name="line.456"></a>
+<FONT color="green">457</FONT>            JPanel buttons = new JPanel();<a name="line.457"></a>
+<FONT color="green">458</FONT>    <a name="line.458"></a>
+<FONT color="green">459</FONT>            evaluate = new JButton("Evaluate Application");<a name="line.459"></a>
+<FONT color="green">460</FONT>            visualize = new JButton("Visualize Case Base using Similarity Function");<a name="line.460"></a>
+<FONT color="green">461</FONT>    <a name="line.461"></a>
+<FONT color="green">462</FONT>            buttons.add(evaluate);<a name="line.462"></a>
+<FONT color="green">463</FONT>            buttons.add(visualize);<a name="line.463"></a>
+<FONT color="green">464</FONT>    <a name="line.464"></a>
+<FONT color="green">465</FONT>            evaluate.addActionListener(new ActionListener() {<a name="line.465"></a>
+<FONT color="green">466</FONT>                public void actionPerformed(ActionEvent e)<a name="line.466"></a>
+<FONT color="green">467</FONT>                {<a name="line.467"></a>
+<FONT color="green">468</FONT>                    evaluate();<a name="line.468"></a>
+<FONT color="green">469</FONT>                }<a name="line.469"></a>
+<FONT color="green">470</FONT>            });<a name="line.470"></a>
+<FONT color="green">471</FONT>    <a name="line.471"></a>
+<FONT color="green">472</FONT>            visualize.addActionListener(new ActionListener() {<a name="line.472"></a>
+<FONT color="green">473</FONT>                public void actionPerformed(ActionEvent e)<a name="line.473"></a>
+<FONT color="green">474</FONT>                {<a name="line.474"></a>
+<FONT color="green">475</FONT>                    visualize();<a name="line.475"></a>
+<FONT color="green">476</FONT>                }<a name="line.476"></a>
+<FONT color="green">477</FONT>            });<a name="line.477"></a>
+<FONT color="green">478</FONT>    <a name="line.478"></a>
+<FONT color="green">479</FONT>            /************ Progress Listener ****************/<a name="line.479"></a>
+<FONT color="green">480</FONT>            //SwingProgressBar shows the progress<a name="line.480"></a>
+<FONT color="green">481</FONT>            ProgressListener listener =  new SwingProgressBar();<a name="line.481"></a>
+<FONT color="green">482</FONT>            ProgressController.register(listener, CasesVisualization.class);<a name="line.482"></a>
+<FONT color="green">483</FONT>            ProgressController.register(listener, LeaveOneOutEvaluator.class);<a name="line.483"></a>
+<FONT color="green">484</FONT>            ProgressController.register(listener, NFoldEvaluator.class);<a name="line.484"></a>
+<FONT color="green">485</FONT>            ProgressController.register(listener, SameSplitEvaluator.class);<a name="line.485"></a>
+<FONT color="green">486</FONT>            ProgressController.register(listener, HoldOutEvaluator.class);<a name="line.486"></a>
+<FONT color="green">487</FONT>            ProgressController.register(listener, OpennlpSplitter.class);<a name="line.487"></a>
+<FONT color="green">488</FONT>            ProgressController.register(listener, StopWordsDetector.class);<a name="line.488"></a>
+<FONT color="green">489</FONT>            ProgressController.register(listener, TextStemmer.class);<a name="line.489"></a>
+<FONT color="green">490</FONT>    <a name="line.490"></a>
+<FONT color="green">491</FONT>            <a name="line.491"></a>
+<FONT color="green">492</FONT>            /** ********* Main Panel ********** */<a name="line.492"></a>
+<FONT color="green">493</FONT>    <a name="line.493"></a>
+<FONT color="green">494</FONT>            JPanel central = new JPanel();<a name="line.494"></a>
+<FONT color="green">495</FONT>            central.setLayout(new BoxLayout(central, BoxLayout.X_AXIS));<a name="line.495"></a>
+<FONT color="green">496</FONT>            central.add(corpusPanel);<a name="line.496"></a>
+<FONT color="green">497</FONT>            central.add(similPanel);<a name="line.497"></a>
+<FONT color="green">498</FONT>            central.add(evaluatorPanel);<a name="line.498"></a>
+<FONT color="green">499</FONT>            central.add(clasifPanel);<a name="line.499"></a>
+<FONT color="green">500</FONT>    <a name="line.500"></a>
+<FONT color="green">501</FONT>            JPanel main = new JPanel();<a name="line.501"></a>
+<FONT color="green">502</FONT>            main.setLayout(new BorderLayout());<a name="line.502"></a>
+<FONT color="green">503</FONT>    <a name="line.503"></a>
+<FONT color="green">504</FONT>            main.add(central, BorderLayout.CENTER);<a name="line.504"></a>
+<FONT color="green">505</FONT>            main.add(buttons, BorderLayout.SOUTH);<a name="line.505"></a>
+<FONT color="green">506</FONT>    <a name="line.506"></a>
+<FONT color="green">507</FONT>            this.getContentPane().add(main);<a name="line.507"></a>
+<FONT color="green">508</FONT>            this.pack();<a name="line.508"></a>
+<FONT color="green">509</FONT>    <a name="line.509"></a>
+<FONT color="green">510</FONT>            this.setTitle("Spam Filter Toy");<a name="line.510"></a>
+<FONT color="green">511</FONT>            Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();<a name="line.511"></a>
+<FONT color="green">512</FONT>            setBounds((screenSize.width - this.getWidth()) / 2, (screenSize.height - this.getHeight()) / 2, getWidth(),<a name="line.512"></a>
+<FONT color="green">513</FONT>                    getHeight());<a name="line.513"></a>
+<FONT color="green">514</FONT>    <a name="line.514"></a>
+<FONT color="green">515</FONT>            this.addWindowListener(new WindowAdapter() <a name="line.515"></a>
+<FONT color="green">516</FONT>            {   public void windowClosing(WindowEvent arg0) <a name="line.516"></a>
+<FONT color="green">517</FONT>                {   <a name="line.517"></a>
+<FONT color="green">518</FONT>                    System.exit(0);<a name="line.518"></a>
+<FONT color="green">519</FONT>                }<a name="line.519"></a>
+<FONT color="green">520</FONT>            });<a name="line.520"></a>
+<FONT color="green">521</FONT>        }<a name="line.521"></a>
+<FONT color="green">522</FONT>    <a name="line.522"></a>
+<FONT color="green">523</FONT>        void enableGroup(String group)<a name="line.523"></a>
+<FONT color="green">524</FONT>        {<a name="line.524"></a>
+<FONT color="green">525</FONT>            if (group.equals("nfold"))<a name="line.525"></a>
+<FONT color="green">526</FONT>            {<a name="line.526"></a>
+<FONT color="green">527</FONT>                setEnabledNFold(true);<a name="line.527"></a>
+<FONT color="green">528</FONT>                setEnabledHoldOut(false);<a name="line.528"></a>
+<FONT color="green">529</FONT>                setEnabledSameSplit(false);<a name="line.529"></a>
+<FONT color="green">530</FONT>            } else if (group.equals("holdout"))<a name="line.530"></a>
+<FONT color="green">531</FONT>            {<a name="line.531"></a>
+<FONT color="green">532</FONT>                setEnabledNFold(false);<a name="line.532"></a>
+<FONT color="green">533</FONT>                setEnabledSameSplit(false);<a name="line.533"></a>
+<FONT color="green">534</FONT>                setEnabledHoldOut(true);<a name="line.534"></a>
+<FONT color="green">535</FONT>            }<a name="line.535"></a>
+<FONT color="green">536</FONT>            else if (group.equals("samesplit"))<a name="line.536"></a>
+<FONT color="green">537</FONT>            {<a name="line.537"></a>
+<FONT color="green">538</FONT>                setEnabledNFold(false);<a name="line.538"></a>
+<FONT color="green">539</FONT>                setEnabledSameSplit(true);<a name="line.539"></a>
+<FONT color="green">540</FONT>                setEnabledHoldOut(false);<a name="line.540"></a>
+<FONT color="green">541</FONT>            }<a name="line.541"></a>
+<FONT color="green">542</FONT>            else if(group.equals("none"))<a name="line.542"></a>
+<FONT color="green">543</FONT>            {<a name="line.543"></a>
+<FONT color="green">544</FONT>                setEnabledNFold(false);<a name="line.544"></a>
+<FONT color="green">545</FONT>                setEnabledSameSplit(false);<a name="line.545"></a>
+<FONT color="green">546</FONT>                setEnabledHoldOut(false);<a name="line.546"></a>
+<FONT color="green">547</FONT>            }<a name="line.547"></a>
+<FONT color="green">548</FONT>        }<a name="line.548"></a>
+<FONT color="green">549</FONT>    <a name="line.549"></a>
+<FONT color="green">550</FONT>    <a name="line.550"></a>
+<FONT color="green">551</FONT>        private void setEnabledSameSplit(boolean enabled)<a name="line.551"></a>
+<FONT color="green">552</FONT>        {<a name="line.552"></a>
+<FONT color="green">553</FONT>            this.sameSplitGenerate.setEnabled(enabled);<a name="line.553"></a>
+<FONT color="green">554</FONT>            this.sameSplitReuse.setEnabled(enabled);<a name="line.554"></a>
+<FONT color="green">555</FONT>            if(!enabled)<a name="line.555"></a>
+<FONT color="green">556</FONT>            {<a name="line.556"></a>
+<FONT color="green">557</FONT>                this.saveSplit.setEnabled(enabled);<a name="line.557"></a>
+<FONT color="green">558</FONT>                this.loadSplit.setEnabled(enabled);<a name="line.558"></a>
+<FONT color="green">559</FONT>                this.sameSplitGenerateFile.setEnabled(enabled);<a name="line.559"></a>
+<FONT color="green">560</FONT>                this.sameSplitReuseFile.setEnabled(enabled);<a name="line.560"></a>
+<FONT color="green">561</FONT>                this.sameSplitGeneratePercentSpinner.setEnabled(enabled);<a name="line.561"></a>
+<FONT color="green">562</FONT>                this.sameSplitGeneratePercent.setEnabled(enabled);<a name="line.562"></a>
+<FONT color="green">563</FONT>            }<a name="line.563"></a>
+<FONT color="green">564</FONT>            else<a name="line.564"></a>
+<FONT color="green">565</FONT>            {<a name="line.565"></a>
+<FONT color="green">566</FONT>                <a name="line.566"></a>
+<FONT color="green">567</FONT>                if(sameSplitGenerate.isSelected())<a name="line.567"></a>
+<FONT color="green">568</FONT>                {<a name="line.568"></a>
+<FONT color="green">569</FONT>                    saveSplit.setEnabled(true);<a name="line.569"></a>
+<FONT color="green">570</FONT>                    sameSplitGenerateFile.setEnabled(true);<a name="line.570"></a>
+<FONT color="green">571</FONT>                    sameSplitGeneratePercentSpinner.setEnabled(true);<a name="line.571"></a>
+<FONT color="green">572</FONT>                    sameSplitGeneratePercent.setEnabled(true);<a name="line.572"></a>
+<FONT color="green">573</FONT>                }<a name="line.573"></a>
+<FONT color="green">574</FONT>                else<a name="line.574"></a>
+<FONT color="green">575</FONT>                {<a name="line.575"></a>
+<FONT color="green">576</FONT>                    loadSplit.setEnabled(true);<a name="line.576"></a>
+<FONT color="green">577</FONT>                    sameSplitReuseFile.setEnabled(true);<a name="line.577"></a>
+<FONT color="green">578</FONT>                }<a name="line.578"></a>
+<FONT color="green">579</FONT>            }<a name="line.579"></a>
+<FONT color="green">580</FONT>        }<a name="line.580"></a>
+<FONT color="green">581</FONT>        <a name="line.581"></a>
+<FONT color="green">582</FONT>        private void setEnabledNFold(boolean enabled)<a name="line.582"></a>
+<FONT color="green">583</FONT>        {<a name="line.583"></a>
+<FONT color="green">584</FONT>            nFoldLabel1.setEnabled(enabled);<a name="line.584"></a>
+<FONT color="green">585</FONT>            nFoldLabel2.setEnabled(enabled);<a name="line.585"></a>
+<FONT color="green">586</FONT>            nFoldFoldsSpinner.setEnabled(enabled);<a name="line.586"></a>
+<FONT color="green">587</FONT>            nFoldRepetitionsSpinner.setEnabled(enabled);<a name="line.587"></a>
+<FONT color="green">588</FONT>        }<a name="line.588"></a>
+<FONT color="green">589</FONT>    <a name="line.589"></a>
+<FONT color="green">590</FONT>        private void setEnabledHoldOut(boolean enabled)<a name="line.590"></a>
+<FONT color="green">591</FONT>        {<a name="line.591"></a>
+<FONT color="green">592</FONT>            holdOutLabel1.setEnabled(enabled);<a name="line.592"></a>
+<FONT color="green">593</FONT>            holdOutLabel2.setEnabled(enabled);<a name="line.593"></a>
+<FONT color="green">594</FONT>            holdOutPercentSpinner.setEnabled(enabled);<a name="line.594"></a>
+<FONT color="green">595</FONT>            holdOutRepetitionsSpinner.setEnabled(enabled);<a name="line.595"></a>
+<FONT color="green">596</FONT>        }<a name="line.596"></a>
+<FONT color="green">597</FONT>    <a name="line.597"></a>
+<FONT color="green">598</FONT>        void setButtonsEnabled(boolean enabled)<a name="line.598"></a>
+<FONT color="green">599</FONT>        {<a name="line.599"></a>
+<FONT color="green">600</FONT>            visualize.setEnabled(enabled);<a name="line.600"></a>
+<FONT color="green">601</FONT>            evaluate.setEnabled(enabled);<a name="line.601"></a>
+<FONT color="green">602</FONT>        }<a name="line.602"></a>
+<FONT color="green">603</FONT>        <a name="line.603"></a>
+<FONT color="green">604</FONT>        void evaluate()<a name="line.604"></a>
+<FONT color="green">605</FONT>        {<a name="line.605"></a>
+<FONT color="green">606</FONT>            SpamFilterApp app = configureApp();<a name="line.606"></a>
+<FONT color="green">607</FONT>            Thread thread = new Thread(new Evaluation(app));<a name="line.607"></a>
+<FONT color="green">608</FONT>            thread.start();<a name="line.608"></a>
+<FONT color="green">609</FONT>        }<a name="line.609"></a>
+<FONT color="green">610</FONT>    <a name="line.610"></a>
+<FONT color="green">611</FONT>        /**<a name="line.611"></a>
+<FONT color="green">612</FONT>             * Thread for running the Visualization<a name="line.612"></a>
+<FONT color="green">613</FONT>             * <a name="line.613"></a>
+<FONT color="green">614</FONT>             * @author Juan A. Recio-Garcia<a name="line.614"></a>
+<FONT color="green">615</FONT>             * @version 1.0<a name="line.615"></a>
+<FONT color="green">616</FONT>             */<a name="line.616"></a>
+<FONT color="green">617</FONT>        class Evaluation implements Runnable<a name="line.617"></a>
+<FONT color="green">618</FONT>        {<a name="line.618"></a>
+<FONT color="green">619</FONT>            SpamFilterApp app;<a name="line.619"></a>
+<FONT color="green">620</FONT>    <a name="line.620"></a>
+<FONT color="green">621</FONT>            Evaluation(SpamFilterApp app)<a name="line.621"></a>
+<FONT color="green">622</FONT>            {<a name="line.622"></a>
+<FONT color="green">623</FONT>                this.app = app;<a name="line.623"></a>
+<FONT color="green">624</FONT>            }<a name="line.624"></a>
+<FONT color="green">625</FONT>    <a name="line.625"></a>
+<FONT color="green">626</FONT>            public void run()<a name="line.626"></a>
+<FONT color="green">627</FONT>            {<a name="line.627"></a>
+<FONT color="green">628</FONT>                setButtonsEnabled(false);<a name="line.628"></a>
+<FONT color="green">629</FONT>                try<a name="line.629"></a>
+<FONT color="green">630</FONT>                {<a name="line.630"></a>
+<FONT color="green">631</FONT>                    if (leaveOneOut.isSelected())<a name="line.631"></a>
+<FONT color="green">632</FONT>                    {<a name="line.632"></a>
+<FONT color="green">633</FONT>                        LeaveOneOutEvaluator eval = new LeaveOneOutEvaluator();<a name="line.633"></a>
+<FONT color="green">634</FONT>                        eval.init(app);<a name="line.634"></a>
+<FONT color="green">635</FONT>                        eval.LeaveOneOut(); <a name="line.635"></a>
+<FONT color="green">636</FONT>                    } <a name="line.636"></a>
+<FONT color="green">637</FONT>                    else if(sameSplit.isSelected())<a name="line.637"></a>
+<FONT color="green">638</FONT>                    {<a name="line.638"></a>
+<FONT color="green">639</FONT>                        SameSplitEvaluator eval = new SameSplitEvaluator();<a name="line.639"></a>
+<FONT color="green">640</FONT>                        eval.init(app);<a name="line.640"></a>
+<FONT color="green">641</FONT>                        if(sameSplitGenerate.isSelected())<a name="line.641"></a>
+<FONT color="green">642</FONT>                        {<a name="line.642"></a>
+<FONT color="green">643</FONT>                            String file = sameSplitGenerateFile.getText();<a name="line.643"></a>
+<FONT color="green">644</FONT>                            int percent = sameSplitPercent.getNumber().intValue();<a name="line.644"></a>
+<FONT color="green">645</FONT>                            eval.generateSplit(percent, file);<a name="line.645"></a>
+<FONT color="green">646</FONT>                            eval.HoldOutfromFile(file);<a name="line.646"></a>
+<FONT color="green">647</FONT>                        }<a name="line.647"></a>
+<FONT color="green">648</FONT>                        else if(sameSplitReuse.isSelected())<a name="line.648"></a>
+<FONT color="green">649</FONT>                        {<a name="line.649"></a>
+<FONT color="green">650</FONT>                            eval.HoldOutfromFile(sameSplitReuseFile.getText());<a name="line.650"></a>
+<FONT color="green">651</FONT>                        }<a name="line.651"></a>
+<FONT color="green">652</FONT>                    } <a name="line.652"></a>
+<FONT color="green">653</FONT>                    else if (holdOut.isSelected())<a name="line.653"></a>
+<FONT color="green">654</FONT>                    {<a name="line.654"></a>
+<FONT color="green">655</FONT>                        HoldOutEvaluator eval = new HoldOutEvaluator();<a name="line.655"></a>
+<FONT color="green">656</FONT>                        eval.init(app);<a name="line.656"></a>
+<FONT color="green">657</FONT>                        int testPercent = holdOutPercent.getNumber().intValue();<a name="line.657"></a>
+<FONT color="green">658</FONT>                        int repetitions = holdOutRepetitions.getNumber().intValue();<a name="line.658"></a>
+<FONT color="green">659</FONT>                        eval.HoldOut(testPercent, repetitions);<a name="line.659"></a>
+<FONT color="green">660</FONT>                    } <a name="line.660"></a>
+<FONT color="green">661</FONT>                    else if (nFold.isSelected())<a name="line.661"></a>
+<FONT color="green">662</FONT>                    {<a name="line.662"></a>
+<FONT color="green">663</FONT>                        NFoldEvaluator eval = new NFoldEvaluator();<a name="line.663"></a>
+<FONT color="green">664</FONT>                        eval.init(app);<a name="line.664"></a>
+<FONT color="green">665</FONT>                        int folds = nFoldFolds.getNumber().intValue();<a name="line.665"></a>
+<FONT color="green">666</FONT>                        int repetitions = nFoldRepetitions.getNumber().intValue();<a name="line.666"></a>
+<FONT color="green">667</FONT>                        eval.NFoldEvaluation(folds, repetitions);<a name="line.667"></a>
+<FONT color="green">668</FONT>                    } <a name="line.668"></a>
+<FONT color="green">669</FONT>                    else<a name="line.669"></a>
+<FONT color="green">670</FONT>                    {<a name="line.670"></a>
+<FONT color="green">671</FONT>                        String filename = "jcolibri/test/test16/splits/corpus";<a name="line.671"></a>
+<FONT color="green">672</FONT>                        if(corpus300.isSelected())<a name="line.672"></a>
+<FONT color="green">673</FONT>                            filename+="300-";<a name="line.673"></a>
+<FONT color="green">674</FONT>                        else<a name="line.674"></a>
+<FONT color="green">675</FONT>                            filename+="600-";<a name="line.675"></a>
+<FONT color="green">676</FONT>                        <a name="line.676"></a>
+<FONT color="green">677</FONT>                        if(holdOutFixed10.isSelected())<a name="line.677"></a>
+<FONT color="green">678</FONT>                            filename+="10.split";<a name="line.678"></a>
+<FONT color="green">679</FONT>                        else if(holdOutFixed20.isSelected())<a name="line.679"></a>
+<FONT color="green">680</FONT>                            filename+="20.split";<a name="line.680"></a>
+<FONT color="green">681</FONT>                        else if(holdOutFixed30.isSelected())<a name="line.681"></a>
+<FONT color="green">682</FONT>                            filename+="30.split";<a name="line.682"></a>
+<FONT color="green">683</FONT>                            <a name="line.683"></a>
+<FONT color="green">684</FONT>                        SameSplitEvaluator eval = new SameSplitEvaluator();<a name="line.684"></a>
+<FONT color="green">685</FONT>                        eval.init(app);<a name="line.685"></a>
+<FONT color="green">686</FONT>                        eval.HoldOutfromFile(filename);<a name="line.686"></a>
+<FONT color="green">687</FONT>                        <a name="line.687"></a>
+<FONT color="green">688</FONT>                    }<a name="line.688"></a>
+<FONT color="green">689</FONT>    <a name="line.689"></a>
+<FONT color="green">690</FONT>                    double tp = app.getTruePositives();<a name="line.690"></a>
+<FONT color="green">691</FONT>                    double fp = app.getFalsePositives();<a name="line.691"></a>
+<FONT color="green">692</FONT>                    double fn = app.getFalseNegatives();<a name="line.692"></a>
+<FONT color="green">693</FONT>                    double tn = app.getTrueNegatives();<a name="line.693"></a>
+<FONT color="green">694</FONT>                    double precision = tp / (tp + fp);<a name="line.694"></a>
+<FONT color="green">695</FONT>                    double recall    = tp / (tp + fn);<a name="line.695"></a>
+<FONT color="green">696</FONT>    <a name="line.696"></a>
+<FONT color="green">697</FONT>                    EvaluationReport report = Evaluator.getEvaluationReport();<a name="line.697"></a>
+<FONT color="green">698</FONT>                    report.putOtherData("Precision", String.valueOf(precision));<a name="line.698"></a>
+<FONT color="green">699</FONT>                    report.putOtherData("Recall", String.valueOf(recall));<a name="line.699"></a>
+<FONT color="green">700</FONT>                    report.putOtherData("True Spam", String.valueOf(tp));<a name="line.700"></a>
+<FONT color="green">701</FONT>                    report.putOtherData("True Ham", String.valueOf(tn));<a name="line.701"></a>
+<FONT color="green">702</FONT>                    report.putOtherData("False Spam", String.valueOf(fp));<a name="line.702"></a>
+<FONT color="green">703</FONT>                    report.putOtherData("False Ham", String.valueOf(fn));<a name="line.703"></a>
+<FONT color="green">704</FONT>    <a name="line.704"></a>
+<FONT color="green">705</FONT>                    System.out.println(report);<a name="line.705"></a>
+<FONT color="green">706</FONT>                    jcolibri.evaluation.tools.EvaluationResultGUI.show(report, "Spam Filter Toy - Evaluation", false);<a name="line.706"></a>
+<FONT color="green">707</FONT>    <a name="line.707"></a>
+<FONT color="green">708</FONT>                } catch (Exception e)<a name="line.708"></a>
+<FONT color="green">709</FONT>                {<a name="line.709"></a>
+<FONT color="green">710</FONT>                    org.apache.commons.logging.LogFactory.getLog(SpamFilterApp.class).error(e);<a name="line.710"></a>
+<FONT color="green">711</FONT>    <a name="line.711"></a>
+<FONT color="green">712</FONT>                }<a name="line.712"></a>
+<FONT color="green">713</FONT>                setButtonsEnabled(true);<a name="line.713"></a>
+<FONT color="green">714</FONT>            }<a name="line.714"></a>
+<FONT color="green">715</FONT>        }<a name="line.715"></a>
+<FONT color="green">716</FONT>        <a name="line.716"></a>
+<FONT color="green">717</FONT>        void visualize()<a name="line.717"></a>
+<FONT color="green">718</FONT>        {<a name="line.718"></a>
+<FONT color="green">719</FONT>            SpamFilterApp app = configureApp();<a name="line.719"></a>
+<FONT color="green">720</FONT>            Thread thread = new Thread(new Visualization(app));<a name="line.720"></a>
+<FONT color="green">721</FONT>            thread.start();<a name="line.721"></a>
+<FONT color="green">722</FONT>        }<a name="line.722"></a>
+<FONT color="green">723</FONT>        <a name="line.723"></a>
+<FONT color="green">724</FONT>        /**<a name="line.724"></a>
+<FONT color="green">725</FONT>             * Thread for running the Visualization<a name="line.725"></a>
+<FONT color="green">726</FONT>             * <a name="line.726"></a>
+<FONT color="green">727</FONT>             * @author Juan A. Recio-Garcia<a name="line.727"></a>
+<FONT color="green">728</FONT>             * @version 1.0<a name="line.728"></a>
+<FONT color="green">729</FONT>             */<a name="line.729"></a>
+<FONT color="green">730</FONT>        class Visualization implements Runnable<a name="line.730"></a>
+<FONT color="green">731</FONT>        {<a name="line.731"></a>
+<FONT color="green">732</FONT>            SpamFilterApp app;<a name="line.732"></a>
+<FONT color="green">733</FONT>            Visualization(SpamFilterApp app)<a name="line.733"></a>
+<FONT color="green">734</FONT>            {<a name="line.734"></a>
+<FONT color="green">735</FONT>                this.app = app;<a name="line.735"></a>
+<FONT color="green">736</FONT>            }<a name="line.736"></a>
+<FONT color="green">737</FONT>            <a name="line.737"></a>
+<FONT color="green">738</FONT>            public void run()<a name="line.738"></a>
+<FONT color="green">739</FONT>            {<a name="line.739"></a>
+<FONT color="green">740</FONT>                setButtonsEnabled(false);<a name="line.740"></a>
+<FONT color="green">741</FONT>                    try<a name="line.741"></a>
+<FONT color="green">742</FONT>                    {<a name="line.742"></a>
+<FONT color="green">743</FONT>                        app.configure();<a name="line.743"></a>
+<FONT color="green">744</FONT>                        CBRCaseBase _caseBase = app.preCycle();<a name="line.744"></a>
+<FONT color="green">745</FONT>                        jcolibri.extensions.visualization.CasesVisualization.visualize(_caseBase.getCases(), app.getKNNConfig());<a name="line.745"></a>
+<FONT color="green">746</FONT>                    } catch (ExecutionException e)<a name="line.746"></a>
+<FONT color="green">747</FONT>                    {<a name="line.747"></a>
+<FONT color="green">748</FONT>                        org.apache.commons.logging.LogFactory.getLog(SpamFilterApp.class).error(e);<a name="line.748"></a>
+<FONT color="green">749</FONT>                        <a name="line.749"></a>
+<FONT color="green">750</FONT>                    }<a name="line.750"></a>
+<FONT color="green">751</FONT>                setButtonsEnabled(true);<a name="line.751"></a>
+<FONT color="green">752</FONT>    <a name="line.752"></a>
+<FONT color="green">753</FONT>            }<a name="line.753"></a>
+<FONT color="green">754</FONT>        }<a name="line.754"></a>
+<FONT color="green">755</FONT>        <a name="line.755"></a>
+<FONT color="green">756</FONT>        private SpamFilterApp configureApp()<a name="line.756"></a>
+<FONT color="green">757</FONT>        {<a name="line.757"></a>
+<FONT color="green">758</FONT>            // Connector<a name="line.758"></a>
+<FONT color="green">759</FONT>            String corpusFile = null;<a name="line.759"></a>
+<FONT color="green">760</FONT>            if(this.corpus300.isSelected())<a name="line.760"></a>
+<FONT color="green">761</FONT>                corpusFile = "jcolibri/test/test16/ling-corpus-300.zip";<a name="line.761"></a>
+<FONT color="green">762</FONT>            else if(this.corpus600.isSelected())<a name="line.762"></a>
+<FONT color="green">763</FONT>                corpusFile = "jcolibri/test/test16/ling-corpus-600.zip";<a name="line.763"></a>
+<FONT color="green">764</FONT>            <a name="line.764"></a>
+<FONT color="green">765</FONT>            // Simil function<a name="line.765"></a>
+<FONT color="green">766</FONT>            LocalSimilarityFunction similFunc = null;<a name="line.766"></a>
+<FONT color="green">767</FONT>            if(this.compressionBased.isSelected())<a name="line.767"></a>
+<FONT color="green">768</FONT>                similFunc = new CompressionBased(new GZipCompressor());<a name="line.768"></a>
+<FONT color="green">769</FONT>            else if(this.normalizedCompression.isSelected())<a name="line.769"></a>
+<FONT color="green">770</FONT>                similFunc = new NormalisedCompression(new GZipCompressor());<a name="line.770"></a>
+<FONT color="green">771</FONT>            else if(this.cosine.isSelected())<a name="line.771"></a>
+<FONT color="green">772</FONT>                similFunc = new CosineCoefficient();<a name="line.772"></a>
+<FONT color="green">773</FONT>            else if(this.dice.isSelected())<a name="line.773"></a>
+<FONT color="green">774</FONT>                similFunc = new DiceCoefficient();<a name="line.774"></a>
+<FONT color="green">775</FONT>            else if(this.jaccard.isSelected())<a name="line.775"></a>
+<FONT color="green">776</FONT>                similFunc = new JaccardCoefficient();<a name="line.776"></a>
+<FONT color="green">777</FONT>            else if(this.overlap.isSelected())<a name="line.777"></a>
+<FONT color="green">778</FONT>                similFunc = new OverlapCoefficient();<a name="line.778"></a>
+<FONT color="green">779</FONT>            <a name="line.779"></a>
+<FONT color="green">780</FONT>            // Classification method<a name="line.780"></a>
+<FONT color="green">781</FONT>            KNNClassificationMethod classifMethod = null;<a name="line.781"></a>
+<FONT color="green">782</FONT>            if(this.majorityVoting.isSelected())<a name="line.782"></a>
+<FONT color="green">783</FONT>                classifMethod = new MajorityVotingMethod();<a name="line.783"></a>
+<FONT color="green">784</FONT>            else if(this.weightedVoting.isSelected())<a name="line.784"></a>
+<FONT color="green">785</FONT>                classifMethod = new SimilarityWeightedVotingMethod();<a name="line.785"></a>
+<FONT color="green">786</FONT>            <a name="line.786"></a>
+<FONT color="green">787</FONT>            //K<a name="line.787"></a>
+<FONT color="green">788</FONT>            int k = this.kValue.getNumber().intValue();<a name="line.788"></a>
+<FONT color="green">789</FONT>            <a name="line.789"></a>
+<FONT color="green">790</FONT>            SpamFilterApp app = new SpamFilterApp(corpusFile);<a name="line.790"></a>
+<FONT color="green">791</FONT>            app.setSimilFunc(similFunc);<a name="line.791"></a>
+<FONT color="green">792</FONT>            app.setClasifMethod(classifMethod);<a name="line.792"></a>
+<FONT color="green">793</FONT>            app.setK(k);<a name="line.793"></a>
+<FONT color="green">794</FONT>            <a name="line.794"></a>
+<FONT color="green">795</FONT>            return app;<a name="line.795"></a>
+<FONT color="green">796</FONT>        }<a name="line.796"></a>
+<FONT color="green">797</FONT>    }<a name="line.797"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

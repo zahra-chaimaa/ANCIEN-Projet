@@ -1,0 +1,236 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.maintenance;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Collection;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.util.HashMap;<a name="line.4"></a>
+<FONT color="green">005</FONT>    import java.util.Iterator;<a name="line.5"></a>
+<FONT color="green">006</FONT>    import java.util.LinkedList;<a name="line.6"></a>
+<FONT color="green">007</FONT>    import java.util.Set;<a name="line.7"></a>
+<FONT color="green">008</FONT>    <a name="line.8"></a>
+<FONT color="green">009</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.9"></a>
+<FONT color="green">010</FONT>    import jcolibri.method.retrieve.KNNretrieval.KNNConfig;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    /**<a name="line.12"></a>
+<FONT color="green">013</FONT>     * Calculates coverage, reachability and liability sets using <a name="line.13"></a>
+<FONT color="green">014</FONT>     * both the CRR definition and the ICF definition<a name="line.14"></a>
+<FONT color="green">015</FONT>     * <a name="line.15"></a>
+<FONT color="green">016</FONT>     * @author Lisa Cummins<a name="line.16"></a>
+<FONT color="green">017</FONT>     */<a name="line.17"></a>
+<FONT color="green">018</FONT>    public class SetCalculator {<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>            public static final String COVERAGE_SET = "Coverage Set";<a name="line.20"></a>
+<FONT color="green">021</FONT>            <a name="line.21"></a>
+<FONT color="green">022</FONT>            public static final String REACHABILITY_SET = "Reachability Set";<a name="line.22"></a>
+<FONT color="green">023</FONT>            <a name="line.23"></a>
+<FONT color="green">024</FONT>            public static final String LIABILITY_SET = "Liability Set";<a name="line.24"></a>
+<FONT color="green">025</FONT>            <a name="line.25"></a>
+<FONT color="green">026</FONT>            /**<a name="line.26"></a>
+<FONT color="green">027</FONT>             * Calculates coverage, reachability and liability sets<a name="line.27"></a>
+<FONT color="green">028</FONT>             * @return the coverage, reachability and liability sets of<a name="line.28"></a>
+<FONT color="green">029</FONT>             * the given case base according to the CRR definition<a name="line.29"></a>
+<FONT color="green">030</FONT>             */<a name="line.30"></a>
+<FONT color="green">031</FONT>            public HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; calculateCRRSets(Collection&lt;CBRCase&gt; cases, KNNConfig simConfig)<a name="line.31"></a>
+<FONT color="green">032</FONT>            {       VotesCalculator vc = new VotesCalculator();<a name="line.32"></a>
+<FONT color="green">033</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; retrievedCases = <a name="line.33"></a>
+<FONT color="green">034</FONT>                            vc.getkRetrievedCasesForWholeCB(cases, simConfig, 3);<a name="line.34"></a>
+<FONT color="green">035</FONT>                    HashMap&lt;CBRCase, String&gt; votes = vc.getPredictedClasses(retrievedCases);<a name="line.35"></a>
+<FONT color="green">036</FONT>                    HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; sets = <a name="line.36"></a>
+<FONT color="green">037</FONT>                            calculateCRRSets(retrievedCases, votes);<a name="line.37"></a>
+<FONT color="green">038</FONT>                    <a name="line.38"></a>
+<FONT color="green">039</FONT>                    return sets;<a name="line.39"></a>
+<FONT color="green">040</FONT>            }<a name="line.40"></a>
+<FONT color="green">041</FONT>            <a name="line.41"></a>
+<FONT color="green">042</FONT>            <a name="line.42"></a>
+<FONT color="green">043</FONT>            /**<a name="line.43"></a>
+<FONT color="green">044</FONT>             * Calculates coverage, reachability and liability sets<a name="line.44"></a>
+<FONT color="green">045</FONT>             * @return the coverage, reachability and liability sets of<a name="line.45"></a>
+<FONT color="green">046</FONT>             * the given case base according to the ICF definition<a name="line.46"></a>
+<FONT color="green">047</FONT>             */<a name="line.47"></a>
+<FONT color="green">048</FONT>            public HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; calculateICFSets(LinkedList&lt;CBRCase&gt; cases, KNNConfig simConfig)<a name="line.48"></a>
+<FONT color="green">049</FONT>            {       VotesCalculator vc = new VotesCalculator();<a name="line.49"></a>
+<FONT color="green">050</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; retrievedCases = <a name="line.50"></a>
+<FONT color="green">051</FONT>                            vc.getAllRetrievedCasesForWholeCB(cases, simConfig);<a name="line.51"></a>
+<FONT color="green">052</FONT>                    HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; sets = calculateICFSets(retrievedCases);<a name="line.52"></a>
+<FONT color="green">053</FONT>                    return sets;<a name="line.53"></a>
+<FONT color="green">054</FONT>            }<a name="line.54"></a>
+<FONT color="green">055</FONT>            <a name="line.55"></a>
+<FONT color="green">056</FONT>            /**<a name="line.56"></a>
+<FONT color="green">057</FONT>             * Calculates the Coverage, Reachability and Liability Sets of the <a name="line.57"></a>
+<FONT color="green">058</FONT>             * given cases according to the CRR definition<a name="line.58"></a>
+<FONT color="green">059</FONT>             */<a name="line.59"></a>
+<FONT color="green">060</FONT>            private HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; calculateCRRSets(<a name="line.60"></a>
+<FONT color="green">061</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; retrievedCases, HashMap&lt;CBRCase, String&gt; votes)<a name="line.61"></a>
+<FONT color="green">062</FONT>            {       Set&lt;CBRCase&gt; cases = retrievedCases.keySet();<a name="line.62"></a>
+<FONT color="green">063</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; coverageSet = new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;();<a name="line.63"></a>
+<FONT color="green">064</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; reachabilitySet = new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;();<a name="line.64"></a>
+<FONT color="green">065</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; liabilitySet = new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;();<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>                    //Add each case to its own coverage and reachability sets<a name="line.67"></a>
+<FONT color="green">068</FONT>                    for(Iterator&lt;CBRCase&gt; caseIter=cases.iterator(); caseIter.hasNext(); )<a name="line.68"></a>
+<FONT color="green">069</FONT>                    {       CBRCase c = caseIter.next();<a name="line.69"></a>
+<FONT color="green">070</FONT>                            LinkedList&lt;CBRCase&gt; selfCCoverage = new LinkedList&lt;CBRCase&gt;();<a name="line.70"></a>
+<FONT color="green">071</FONT>                            LinkedList&lt;CBRCase&gt; selfRCoverage = new LinkedList&lt;CBRCase&gt;();<a name="line.71"></a>
+<FONT color="green">072</FONT>                            selfCCoverage.add(c);<a name="line.72"></a>
+<FONT color="green">073</FONT>                            selfRCoverage.add(c);<a name="line.73"></a>
+<FONT color="green">074</FONT>                            coverageSet.put(c, selfCCoverage);<a name="line.74"></a>
+<FONT color="green">075</FONT>                            reachabilitySet.put(c, selfRCoverage);<a name="line.75"></a>
+<FONT color="green">076</FONT>                    }<a name="line.76"></a>
+<FONT color="green">077</FONT>                    <a name="line.77"></a>
+<FONT color="green">078</FONT>                    for(Iterator&lt;CBRCase&gt; caseIter=cases.iterator(); caseIter.hasNext(); )<a name="line.78"></a>
+<FONT color="green">079</FONT>                    {       CBRCase c = caseIter.next();<a name="line.79"></a>
+<FONT color="green">080</FONT>                            String actualSolution = c.getSolution().toString();<a name="line.80"></a>
+<FONT color="green">081</FONT>                            String predictedSolution = votes.get(c);<a name="line.81"></a>
+<FONT color="green">082</FONT>                            LinkedList&lt;CBRCase&gt; retrieved = retrievedCases.get(c);<a name="line.82"></a>
+<FONT color="green">083</FONT>                            <a name="line.83"></a>
+<FONT color="green">084</FONT>                            if(actualSolution.equals(predictedSolution))<a name="line.84"></a>
+<FONT color="green">085</FONT>                            {       LinkedList&lt;CBRCase&gt; casesReached = reachabilitySet.get(c);<a name="line.85"></a>
+<FONT color="green">086</FONT>                                    for(Iterator&lt;CBRCase&gt; coverageIter=retrieved.iterator(); coverageIter.hasNext(); )<a name="line.86"></a>
+<FONT color="green">087</FONT>                                    {       CBRCase c1 = coverageIter.next();<a name="line.87"></a>
+<FONT color="green">088</FONT>                                            String c1Solution = c1.getSolution().toString();<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>                                            if(c1Solution.equals(actualSolution))<a name="line.90"></a>
+<FONT color="green">091</FONT>                                            {       LinkedList&lt;CBRCase&gt; casesCovered = coverageSet.get(c1);<a name="line.91"></a>
+<FONT color="green">092</FONT>                                                    if(!casesCovered.contains(c))<a name="line.92"></a>
+<FONT color="green">093</FONT>                                                            casesCovered.add(c);<a name="line.93"></a>
+<FONT color="green">094</FONT>                                                    coverageSet.put(c1, casesCovered);<a name="line.94"></a>
+<FONT color="green">095</FONT>                                                    if(!casesReached.contains(c1))<a name="line.95"></a>
+<FONT color="green">096</FONT>                                                            casesReached.add(c1);<a name="line.96"></a>
+<FONT color="green">097</FONT>                                            }<a name="line.97"></a>
+<FONT color="green">098</FONT>                                    }<a name="line.98"></a>
+<FONT color="green">099</FONT>                                    reachabilitySet.put(c, casesReached);<a name="line.99"></a>
+<FONT color="green">100</FONT>                            }<a name="line.100"></a>
+<FONT color="green">101</FONT>                            else<a name="line.101"></a>
+<FONT color="green">102</FONT>                            {       for(Iterator&lt;CBRCase&gt; covIter=retrieved.iterator(); covIter.hasNext(); )<a name="line.102"></a>
+<FONT color="green">103</FONT>                                    {       CBRCase c1 = covIter.next();<a name="line.103"></a>
+<FONT color="green">104</FONT>                                            String covSolution = c1.getSolution().toString();<a name="line.104"></a>
+<FONT color="green">105</FONT>                                            if(!covSolution.equals(actualSolution))<a name="line.105"></a>
+<FONT color="green">106</FONT>                                            {       LinkedList&lt;CBRCase&gt; liabilityCases = liabilitySet.get(c1);<a name="line.106"></a>
+<FONT color="green">107</FONT>                                                    if(liabilityCases == null)<a name="line.107"></a>
+<FONT color="green">108</FONT>                                                    {       liabilityCases = new LinkedList&lt;CBRCase&gt;();<a name="line.108"></a>
+<FONT color="green">109</FONT>                                                    }<a name="line.109"></a>
+<FONT color="green">110</FONT>                                                    liabilityCases.add(c);<a name="line.110"></a>
+<FONT color="green">111</FONT>                                                    liabilitySet.put(c1, liabilityCases);<a name="line.111"></a>
+<FONT color="green">112</FONT>                                            }<a name="line.112"></a>
+<FONT color="green">113</FONT>                                    }<a name="line.113"></a>
+<FONT color="green">114</FONT>                            }<a name="line.114"></a>
+<FONT color="green">115</FONT>                    }<a name="line.115"></a>
+<FONT color="green">116</FONT>            <a name="line.116"></a>
+<FONT color="green">117</FONT>                    HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; sets = <a name="line.117"></a>
+<FONT color="green">118</FONT>                            new HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt;();<a name="line.118"></a>
+<FONT color="green">119</FONT>                    sets.put(COVERAGE_SET, coverageSet);<a name="line.119"></a>
+<FONT color="green">120</FONT>                    sets.put(REACHABILITY_SET, reachabilitySet);<a name="line.120"></a>
+<FONT color="green">121</FONT>                    sets.put(LIABILITY_SET, liabilitySet);<a name="line.121"></a>
+<FONT color="green">122</FONT>                    return sets;<a name="line.122"></a>
+<FONT color="green">123</FONT>            }<a name="line.123"></a>
+<FONT color="green">124</FONT>    <a name="line.124"></a>
+<FONT color="green">125</FONT>            /**<a name="line.125"></a>
+<FONT color="green">126</FONT>             * Calculates the Coverage, and Reachability Sets of the <a name="line.126"></a>
+<FONT color="green">127</FONT>             * given cases according to the ICF definition<a name="line.127"></a>
+<FONT color="green">128</FONT>             */<a name="line.128"></a>
+<FONT color="green">129</FONT>            private HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; calculateICFSets(<a name="line.129"></a>
+<FONT color="green">130</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; retrievedCases)<a name="line.130"></a>
+<FONT color="green">131</FONT>            {       Set&lt;CBRCase&gt; cases = retrievedCases.keySet();<a name="line.131"></a>
+<FONT color="green">132</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; coverageSet = new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;();<a name="line.132"></a>
+<FONT color="green">133</FONT>                    HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt; reachabilitySet = new HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;();<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>                    for(Iterator&lt;CBRCase&gt; caseIter=cases.iterator(); caseIter.hasNext(); )<a name="line.135"></a>
+<FONT color="green">136</FONT>                    {       CBRCase c = caseIter.next();<a name="line.136"></a>
+<FONT color="green">137</FONT>                            String cSolution = c.getSolution().toString();<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>                            LinkedList&lt;CBRCase&gt; retrievedForC = retrievedCases.get(c);<a name="line.139"></a>
+<FONT color="green">140</FONT>                            //Add the case itself to be the first retrieved case so that it will<a name="line.140"></a>
+<FONT color="green">141</FONT>                            //be included in the coverage and reachability sets<a name="line.141"></a>
+<FONT color="green">142</FONT>                            retrievedForC.addFirst(c);<a name="line.142"></a>
+<FONT color="green">143</FONT>    <a name="line.143"></a>
+<FONT color="green">144</FONT>                            LinkedList&lt;CBRCase&gt; reachability = new LinkedList&lt;CBRCase&gt;();<a name="line.144"></a>
+<FONT color="green">145</FONT>                            for(Iterator&lt;CBRCase&gt; retIter = retrievedForC.iterator(); retIter.hasNext(); )<a name="line.145"></a>
+<FONT color="green">146</FONT>                            {       CBRCase retrieved = retIter.next();<a name="line.146"></a>
+<FONT color="green">147</FONT>                                    String retSolution = retrieved.getSolution().toString();<a name="line.147"></a>
+<FONT color="green">148</FONT>                                    if(cSolution.equals(retSolution))<a name="line.148"></a>
+<FONT color="green">149</FONT>                                    {       reachability.add(retrieved);<a name="line.149"></a>
+<FONT color="green">150</FONT>                                            LinkedList&lt;CBRCase&gt; coverage = coverageSet.get(retrieved);<a name="line.150"></a>
+<FONT color="green">151</FONT>                                            if(coverage == null)<a name="line.151"></a>
+<FONT color="green">152</FONT>                                            {       coverage = new LinkedList&lt;CBRCase&gt;();<a name="line.152"></a>
+<FONT color="green">153</FONT>                                            }<a name="line.153"></a>
+<FONT color="green">154</FONT>                                            coverage.add(c);<a name="line.154"></a>
+<FONT color="green">155</FONT>                                            coverageSet.put(retrieved, coverage);<a name="line.155"></a>
+<FONT color="green">156</FONT>                                    }<a name="line.156"></a>
+<FONT color="green">157</FONT>                                    else<a name="line.157"></a>
+<FONT color="green">158</FONT>                                    {       break;<a name="line.158"></a>
+<FONT color="green">159</FONT>                                    }<a name="line.159"></a>
+<FONT color="green">160</FONT>                            }<a name="line.160"></a>
+<FONT color="green">161</FONT>                            reachabilitySet.put(c, reachability);<a name="line.161"></a>
+<FONT color="green">162</FONT>                    }<a name="line.162"></a>
+<FONT color="green">163</FONT>            <a name="line.163"></a>
+<FONT color="green">164</FONT>                    HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt; sets = <a name="line.164"></a>
+<FONT color="green">165</FONT>                            new HashMap&lt;String, HashMap&lt;CBRCase, LinkedList&lt;CBRCase&gt;&gt;&gt;();<a name="line.165"></a>
+<FONT color="green">166</FONT>                    sets.put(COVERAGE_SET, coverageSet);<a name="line.166"></a>
+<FONT color="green">167</FONT>                    sets.put(REACHABILITY_SET, reachabilitySet);<a name="line.167"></a>
+<FONT color="green">168</FONT>                    return sets;<a name="line.168"></a>
+<FONT color="green">169</FONT>            }<a name="line.169"></a>
+<FONT color="green">170</FONT>    }<a name="line.170"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

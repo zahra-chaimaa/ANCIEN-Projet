@@ -1,0 +1,105 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    package jcolibri.method.maintenance;<a name="line.1"></a>
+<FONT color="green">002</FONT>    <a name="line.2"></a>
+<FONT color="green">003</FONT>    import java.util.Collection;<a name="line.3"></a>
+<FONT color="green">004</FONT>    import java.util.LinkedList;<a name="line.4"></a>
+<FONT color="green">005</FONT>    <a name="line.5"></a>
+<FONT color="green">006</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.6"></a>
+<FONT color="green">007</FONT>    import jcolibri.method.retrieve.KNNretrieval.KNNConfig;<a name="line.7"></a>
+<FONT color="green">008</FONT>    <a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    /**<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Provides the ability to run two maintenance algorithms consecutively <a name="line.11"></a>
+<FONT color="green">012</FONT>     * on a set of cases<a name="line.12"></a>
+<FONT color="green">013</FONT>     * <a name="line.13"></a>
+<FONT color="green">014</FONT>     * @author Lisa Cummins<a name="line.14"></a>
+<FONT color="green">015</FONT>     */<a name="line.15"></a>
+<FONT color="green">016</FONT>    public class RunTwoStepMaintenance {<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>            /**<a name="line.18"></a>
+<FONT color="green">019</FONT>             * Runs alg1 followed by alg2 on the given cases and returns the<a name="line.19"></a>
+<FONT color="green">020</FONT>             * cases deleted by the combined algorithms<a name="line.20"></a>
+<FONT color="green">021</FONT>             * @param alg1 The first maintenance algorithm to perform<a name="line.21"></a>
+<FONT color="green">022</FONT>             * @param alg2 The second maintenance algorithm to perform<a name="line.22"></a>
+<FONT color="green">023</FONT>             * @param cases The group of cases on which to perform maintenance<a name="line.23"></a>
+<FONT color="green">024</FONT>             * @param simConfig The KNNConfig for these cases<a name="line.24"></a>
+<FONT color="green">025</FONT>             * @return the list of cases deleted by the algorithm<a name="line.25"></a>
+<FONT color="green">026</FONT>             */<a name="line.26"></a>
+<FONT color="green">027</FONT>            public static LinkedList&lt;CBRCase&gt; runMaintenance(MaintenanceAlgorithm alg1, MaintenanceAlgorithm alg2, <a name="line.27"></a>
+<FONT color="green">028</FONT>                    Collection&lt;CBRCase&gt; cases, KNNConfig simConfig)<a name="line.28"></a>
+<FONT color="green">029</FONT>            {       <a name="line.29"></a>
+<FONT color="green">030</FONT>                    <a name="line.30"></a>
+<FONT color="green">031</FONT>                    LinkedList&lt;CBRCase&gt; deletedCases = alg1.runMaintenance(cases, simConfig);<a name="line.31"></a>
+<FONT color="green">032</FONT>            <a name="line.32"></a>
+<FONT color="green">033</FONT>                    cases.removeAll(deletedCases);<a name="line.33"></a>
+<FONT color="green">034</FONT>                    <a name="line.34"></a>
+<FONT color="green">035</FONT>                    deletedCases.addAll(alg2.runMaintenance(cases, simConfig));<a name="line.35"></a>
+<FONT color="green">036</FONT>                    <a name="line.36"></a>
+<FONT color="green">037</FONT>                    return deletedCases;<a name="line.37"></a>
+<FONT color="green">038</FONT>            }<a name="line.38"></a>
+<FONT color="green">039</FONT>    }<a name="line.39"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

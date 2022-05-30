@@ -1,0 +1,49 @@
+//-------------------------
+				if(jFileChooser1.showOpenDialog(null)==JFileChooser.APPROVE_OPTION){
+                    DefaultListModel apercu = new DefaultListModel();
+                    apercu.removeAllElements();
+			        String S=jFileChooser1.getSelectedFile().getPath();
+                    File f = new File(S.toString() );
+                    OUVRIR(f,apercu);
+                    String tb[];
+                    
+                    att = new String[24];//apercu.getSize()];
+                    
+                        for(int i=0;i<24/*apercu.getSize()*/;i++)
+                       {
+                        	 tb     = RecupInfoData(apercu.getElementAt(i).toString());
+                        	 att[i] = tb[1];
+                        	 System.out.println("Attribut "+i+" ==> "+att[i]);
+                       }  	 
+                        	 //-----------------------------------------
+                        	 nip.setText(att[0]);
+                     	     jour.setText(att[1]);
+                        	 if(att[2].equals("true"))sa_48h1.setSelected(true);else sa_48h1.setSelected(false);
+                        	 t.setText(att[3]); 
+                        	 if(att[4].equals("true"))hyp_ten1.setSelected(true);else hyp_ten1.setSelected(false); 
+                        	 if(att[5].equals("true"))aus1.setSelected(true);else aus1.setSelected(false); 
+                        	 if(att[6].equals("true"))des1.setSelected(true);else des1.setSelected(false); 
+                        	 if(att[7].equals("true"))presence_kt1.setSelected(true);else presence_kt1.setSelected(false); 
+                        	 if(att[8].equals("true"))ablkt_48h1.setSelected(true);else ablkt_48h1.setSelected(false); 
+                        	 if(att[9].equals("true"))infec_local_kt1.setSelected(true);else infec_local_kt1.setSelected(false); 
+                        	 if(att[10].equals("true"))sec1.setSelected(true);else sec1.setSelected(false); 
+                        	 if(att[11].equals("true"))m_sec1.setSelected(true);else m_sec1.setSelected(false);
+                        	 
+                        	 if(att[12].equals("true"))toux1.setSelected(true);else toux1.setSelected(false);
+                        	 if(att[13].equals("true"))dys1.setSelected(true);else dys1.setSelected(false);
+                        	 if(att[14].equals("true"))sond_urinaire1.setSelected(true);else sond_urinaire1.setSelected(false);
+                        	 if(att[15].equals("true"))pyurie1.setSelected(true);else pyurie1.setSelected(false);
+                        	 if(att[16].equals("true"))brulure_mictionnelle1.setSelected(true);else brulure_mictionnelle1.setSelected(false);
+                        	 if(att[17].equals("true"))douleur_sus_pubienne1.setSelected(true);else douleur_sus_pubienne1.setSelected(false);
+                        	 if(att[18].equals("true"))frissons1.setSelected(true);else frissons1.setSelected(false);
+                        	 if(att[19].equals("true"))leuco_urinaire1.setSelected(true);else leuco_urinaire1.setSelected(false);
+                        	 gb.setText(att[20]);
+                     		 crp.setText(att[21]);
+                     		 pct.setText(att[22]);
+                        	 if(att[23].equals("true"))path.setSelected(true);else path.setSelected(false);
+                        	 
+                       //  }
+                        
+				}}}
+ 
+		 );

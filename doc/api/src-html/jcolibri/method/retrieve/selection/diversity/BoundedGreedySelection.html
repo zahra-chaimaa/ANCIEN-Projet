@@ -1,0 +1,126 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * BoundedGreedySelection.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 05/11/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.method.retrieve.selection.diversity;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.ArrayList;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.util.Collection;<a name="line.12"></a>
+<FONT color="green">013</FONT>    <a name="line.13"></a>
+<FONT color="green">014</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import jcolibri.method.retrieve.RetrievalResult;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.method.retrieve.NNretrieval.NNConfig;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.method.retrieve.selection.SelectCases;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    /**<a name="line.20"></a>
+<FONT color="green">021</FONT>     * Tries to reduce the complexity of the greedy selection algorithm first selecting<a name="line.21"></a>
+<FONT color="green">022</FONT>     * the best b·k cases according to their similarity to the query and then applies<a name="line.22"></a>
+<FONT color="green">023</FONT>     * the greedy selection method to these cases.<a name="line.23"></a>
+<FONT color="green">024</FONT>     * &lt;p&gt;See:<a name="line.24"></a>
+<FONT color="green">025</FONT>     * &lt;p&gt;<a name="line.25"></a>
+<FONT color="green">026</FONT>     * B. Smyth and P. McClave. Similarity vs. diversity. In ICCBR '01: Proceedings <a name="line.26"></a>
+<FONT color="green">027</FONT>     * of the 4th International Conference on Case-Based Reasoning, pages 347-361, <a name="line.27"></a>
+<FONT color="green">028</FONT>     * London, UK, 2001. Springer-Verlag.<a name="line.28"></a>
+<FONT color="green">029</FONT>     * @author Juan A. Recio-Garcia<a name="line.29"></a>
+<FONT color="green">030</FONT>     * @author Developed at University College Cork (Ireland) in collaboration with Derek Bridge.<a name="line.30"></a>
+<FONT color="green">031</FONT>     * @version 1.0<a name="line.31"></a>
+<FONT color="green">032</FONT>     *<a name="line.32"></a>
+<FONT color="green">033</FONT>     */<a name="line.33"></a>
+<FONT color="green">034</FONT>    public class BoundedGreedySelection<a name="line.34"></a>
+<FONT color="green">035</FONT>    {   <a name="line.35"></a>
+<FONT color="green">036</FONT>        <a name="line.36"></a>
+<FONT color="green">037</FONT>        /**<a name="line.37"></a>
+<FONT color="green">038</FONT>         * Executes the algorithm<a name="line.38"></a>
+<FONT color="green">039</FONT>         * @param cases to retrieve from<a name="line.39"></a>
+<FONT color="green">040</FONT>         * @param query to compare<a name="line.40"></a>
+<FONT color="green">041</FONT>         * @param simConfig is the knn config that defines the k returned cases<a name="line.41"></a>
+<FONT color="green">042</FONT>         * @param bound to create the bounded retrieval set<a name="line.42"></a>
+<FONT color="green">043</FONT>         * @param k is the number of cases to select<a name="line.43"></a>
+<FONT color="green">044</FONT>         * @return k cases<a name="line.44"></a>
+<FONT color="green">045</FONT>         */<a name="line.45"></a>
+<FONT color="green">046</FONT>        public static Collection&lt;CBRCase&gt; boundedGreddySelection(Collection&lt;RetrievalResult&gt; cases, CBRQuery query, NNConfig simConfig, int k, int bound)<a name="line.46"></a>
+<FONT color="green">047</FONT>        {<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>            Collection&lt;CBRCase&gt; C = SelectCases.selectTopK(cases, bound*k);<a name="line.49"></a>
+<FONT color="green">050</FONT>            <a name="line.50"></a>
+<FONT color="green">051</FONT>            Collection&lt;CBRCase&gt; R = new ArrayList&lt;CBRCase&gt;();<a name="line.51"></a>
+<FONT color="green">052</FONT>            for(int i=0; (i&lt;k)&amp;&amp; (!C.isEmpty()); i++)<a name="line.52"></a>
+<FONT color="green">053</FONT>            {<a name="line.53"></a>
+<FONT color="green">054</FONT>                CBRCase best = GreedySelection.getMoreQuality(query, C, R, simConfig);<a name="line.54"></a>
+<FONT color="green">055</FONT>                R.add(best);<a name="line.55"></a>
+<FONT color="green">056</FONT>                C.remove(best);<a name="line.56"></a>
+<FONT color="green">057</FONT>            }<a name="line.57"></a>
+<FONT color="green">058</FONT>            return R;<a name="line.58"></a>
+<FONT color="green">059</FONT>        }<a name="line.59"></a>
+<FONT color="green">060</FONT>    }<a name="line.60"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

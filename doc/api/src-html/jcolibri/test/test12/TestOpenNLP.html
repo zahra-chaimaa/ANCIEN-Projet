@@ -1,0 +1,160 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * TestOpenNLP.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 19/06/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.test.test12;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.io.BufferedReader;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.io.InputStreamReader;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.util.Date;<a name="line.13"></a>
+<FONT color="green">014</FONT>    <a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.extensions.textual.IE.common.DomainTopicClassifier;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import jcolibri.extensions.textual.IE.common.FeaturesExtractor;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.extensions.textual.IE.common.PhrasesExtractor;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.extensions.textual.IE.common.StopWordsDetector;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import jcolibri.extensions.textual.IE.common.TextStemmer;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import jcolibri.extensions.textual.IE.opennlp.IETextOpenNLP;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import jcolibri.extensions.textual.IE.opennlp.OpennlpMainNamesExtractor;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import jcolibri.extensions.textual.IE.opennlp.OpennlpPOStagger;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import jcolibri.extensions.textual.IE.opennlp.OpennlpSplitter;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import jcolibri.util.FileIO;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    /**<a name="line.27"></a>
+<FONT color="green">028</FONT>     * This example shows how to use the OpenNLP methods of the Textual CBR extension.<a name="line.28"></a>
+<FONT color="green">029</FONT>     * &lt;br&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     * It just parses and extracts information from the simple text file (restest.txt)<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;p&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     * For more information about the Textual CBR extension read the jcolibri.extensions.textual.IE documentation.<a name="line.32"></a>
+<FONT color="green">033</FONT>     * <a name="line.33"></a>
+<FONT color="green">034</FONT>     * @author Juan A. Recio-Garcia<a name="line.34"></a>
+<FONT color="green">035</FONT>     * @version 1.0<a name="line.35"></a>
+<FONT color="green">036</FONT>     * @see jcolibri.extensions.textual.IE<a name="line.36"></a>
+<FONT color="green">037</FONT>     */<a name="line.37"></a>
+<FONT color="green">038</FONT>    public class TestOpenNLP<a name="line.38"></a>
+<FONT color="green">039</FONT>    {<a name="line.39"></a>
+<FONT color="green">040</FONT>    <a name="line.40"></a>
+<FONT color="green">041</FONT>        public static void main(String[] args)<a name="line.41"></a>
+<FONT color="green">042</FONT>            {<a name="line.42"></a>
+<FONT color="green">043</FONT>                    try {<a name="line.43"></a>
+<FONT color="green">044</FONT>                            // Load the textual file<a name="line.44"></a>
+<FONT color="green">045</FONT>                            BufferedReader br = new BufferedReader( new InputStreamReader(FileIO.findFile("jcolibri/test/test12/restest.txt").openStream()));<a name="line.45"></a>
+<FONT color="green">046</FONT>                            String content = "";<a name="line.46"></a>
+<FONT color="green">047</FONT>                            String line;<a name="line.47"></a>
+<FONT color="green">048</FONT>                            while ((line = br.readLine()) != null) {<a name="line.48"></a>
+<FONT color="green">049</FONT>                                    content+=(line+"\n");<a name="line.49"></a>
+<FONT color="green">050</FONT>                            }<a name="line.50"></a>
+<FONT color="green">051</FONT>                            <a name="line.51"></a>
+<FONT color="green">052</FONT>                            long startTime = new Date().getTime();<a name="line.52"></a>
+<FONT color="green">053</FONT>                            <a name="line.53"></a>
+<FONT color="green">054</FONT>                            //Create the IETextOpenNLP object<a name="line.54"></a>
+<FONT color="green">055</FONT>                            IETextOpenNLP text = new IETextOpenNLP(content);<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>                            //Organize the text into paragraphs, sentences and tokens<a name="line.57"></a>
+<FONT color="green">058</FONT>                            OpennlpSplitter.split(text);<a name="line.58"></a>
+<FONT color="green">059</FONT>                            <a name="line.59"></a>
+<FONT color="green">060</FONT>                            //Remove stopwords<a name="line.60"></a>
+<FONT color="green">061</FONT>                            StopWordsDetector.detectStopWords(text); <a name="line.61"></a>
+<FONT color="green">062</FONT>                            <a name="line.62"></a>
+<FONT color="green">063</FONT>                            //Stem the text<a name="line.63"></a>
+<FONT color="green">064</FONT>                            TextStemmer.stem(text);<a name="line.64"></a>
+<FONT color="green">065</FONT>                            <a name="line.65"></a>
+<FONT color="green">066</FONT>                            //Perform POS tagging with OpenNLP<a name="line.66"></a>
+<FONT color="green">067</FONT>                            OpennlpPOStagger.tag(text);<a name="line.67"></a>
+<FONT color="green">068</FONT>                            <a name="line.68"></a>
+<FONT color="green">069</FONT>                            //Extract main names of the sentence using OpenNLP<a name="line.69"></a>
+<FONT color="green">070</FONT>                            OpennlpMainNamesExtractor.extractMainNames(text);<a name="line.70"></a>
+<FONT color="green">071</FONT>                            <a name="line.71"></a>
+<FONT color="green">072</FONT>                            //Extract phrases using the common implementation<a name="line.72"></a>
+<FONT color="green">073</FONT>                            PhrasesExtractor.loadRules(FileIO.findFile("jcolibri/test/test12/phrasesRules.txt").getPath());<a name="line.73"></a>
+<FONT color="green">074</FONT>                            PhrasesExtractor.extractPhrases(text);<a name="line.74"></a>
+<FONT color="green">075</FONT>                            <a name="line.75"></a>
+<FONT color="green">076</FONT>                            //Extract features using the common implementation<a name="line.76"></a>
+<FONT color="green">077</FONT>                            FeaturesExtractor.loadRules("jcolibri/test/test12/featuresRules.txt");<a name="line.77"></a>
+<FONT color="green">078</FONT>                            FeaturesExtractor.extractFeatures(text);<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>                            //Classify with topic<a name="line.80"></a>
+<FONT color="green">081</FONT>                            DomainTopicClassifier.loadRules("jcolibri/test/test12/domainRules.txt");<a name="line.81"></a>
+<FONT color="green">082</FONT>                            DomainTopicClassifier.classifyWithTopic(text);<a name="line.82"></a>
+<FONT color="green">083</FONT>                            <a name="line.83"></a>
+<FONT color="green">084</FONT>                            //Print result<a name="line.84"></a>
+<FONT color="green">085</FONT>                            System.out.println(text.printAnnotations());<a name="line.85"></a>
+<FONT color="green">086</FONT>                            long endTime = new Date().getTime();<a name="line.86"></a>
+<FONT color="green">087</FONT>                            System.out.println("Total time: "+ (endTime-startTime)+" milliseconds");<a name="line.87"></a>
+<FONT color="green">088</FONT>    <a name="line.88"></a>
+<FONT color="green">089</FONT>                    } catch (Exception e) {<a name="line.89"></a>
+<FONT color="green">090</FONT>                            org.apache.commons.logging.LogFactory.getLog(TestOpenNLP.class).error(e);<a name="line.90"></a>
+<FONT color="green">091</FONT>                    }<a name="line.91"></a>
+<FONT color="green">092</FONT>            }<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>    }<a name="line.94"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

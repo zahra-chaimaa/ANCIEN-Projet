@@ -1,0 +1,285 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /**<a name="line.1"></a>
+<FONT color="green">002</FONT>     * SpamFilterApp.java<a name="line.2"></a>
+<FONT color="green">003</FONT>     * jCOLIBRI2 framework. <a name="line.3"></a>
+<FONT color="green">004</FONT>     * @author Juan A. Recio-García.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * GAIA - Group for Artificial Intelligence Applications<a name="line.5"></a>
+<FONT color="green">006</FONT>     * http://gaia.fdi.ucm.es<a name="line.6"></a>
+<FONT color="green">007</FONT>     * 01/08/2007<a name="line.7"></a>
+<FONT color="green">008</FONT>     */<a name="line.8"></a>
+<FONT color="green">009</FONT>    package jcolibri.test.test16;<a name="line.9"></a>
+<FONT color="green">010</FONT>    <a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.Collection;<a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    import jcolibri.casebase.CachedLinealCaseBase;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import jcolibri.cbraplications.StandardCBRApplication;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import jcolibri.cbrcore.Attribute;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import jcolibri.cbrcore.CBRCase;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import jcolibri.cbrcore.CBRCaseBase;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import jcolibri.cbrcore.CBRQuery;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import jcolibri.cbrcore.Connector;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import jcolibri.evaluation.Evaluator;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import jcolibri.exception.ExecutionException;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import jcolibri.extensions.textual.IE.common.StopWordsDetector;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import jcolibri.extensions.textual.IE.common.TextStemmer;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import jcolibri.extensions.textual.IE.opennlp.OpennlpSplitter;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.LocalSimilarityFunction;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import jcolibri.method.retrieve.NNretrieval.similarity.global.Average;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import jcolibri.method.reuse.classification.KNNClassificationConfig;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import jcolibri.method.reuse.classification.KNNClassificationMethod;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import jcolibri.method.revise.classification.BasicClassificationOracle;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import jcolibri.method.revise.classification.ClassificationOracle;<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>    /**<a name="line.32"></a>
+<FONT color="green">033</FONT>     * Spam filter application.<a name="line.33"></a>
+<FONT color="green">034</FONT>     * It is configured through the set() methods. <a name="line.34"></a>
+<FONT color="green">035</FONT>     * The cycle method() runs the application and stores the evaluation results in the evaluation report object.<a name="line.35"></a>
+<FONT color="green">036</FONT>     * After running all cycles, some statistics may be read using the get() methods.<a name="line.36"></a>
+<FONT color="green">037</FONT>     * &lt;br&gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     * The corpus used by this application must be a zip file with several textual files (one per email).<a name="line.38"></a>
+<FONT color="green">039</FONT>     * The filename must start by ham or spam depending on the class.<a name="line.39"></a>
+<FONT color="green">040</FONT>     * <a name="line.40"></a>
+<FONT color="green">041</FONT>     * @author Juan A. Recio-Garcia<a name="line.41"></a>
+<FONT color="green">042</FONT>     * @version 1.0<a name="line.42"></a>
+<FONT color="green">043</FONT>     */<a name="line.43"></a>
+<FONT color="green">044</FONT>    public class SpamFilterApp implements StandardCBRApplication<a name="line.44"></a>
+<FONT color="green">045</FONT>    {<a name="line.45"></a>
+<FONT color="green">046</FONT>        Connector _connector;<a name="line.46"></a>
+<FONT color="green">047</FONT>        CBRCaseBase _caseBase;<a name="line.47"></a>
+<FONT color="green">048</FONT>        <a name="line.48"></a>
+<FONT color="green">049</FONT>        private int k = 3;<a name="line.49"></a>
+<FONT color="green">050</FONT>        private LocalSimilarityFunction similFunc = null; <a name="line.50"></a>
+<FONT color="green">051</FONT>        private KNNClassificationMethod clasifMethod = null;<a name="line.51"></a>
+<FONT color="green">052</FONT>        private String corpusZipFile = null;<a name="line.52"></a>
+<FONT color="green">053</FONT>    <a name="line.53"></a>
+<FONT color="green">054</FONT>        private double tp;<a name="line.54"></a>
+<FONT color="green">055</FONT>        private double tn;<a name="line.55"></a>
+<FONT color="green">056</FONT>        private double fp;<a name="line.56"></a>
+<FONT color="green">057</FONT>        private double fn;<a name="line.57"></a>
+<FONT color="green">058</FONT>        <a name="line.58"></a>
+<FONT color="green">059</FONT>        private KNNClassificationConfig spamFilterSimConfig;        <a name="line.59"></a>
+<FONT color="green">060</FONT>    <a name="line.60"></a>
+<FONT color="green">061</FONT>        /**<a name="line.61"></a>
+<FONT color="green">062</FONT>         * Creates a spam filter application that uses the corpus indicated by the parameter.<a name="line.62"></a>
+<FONT color="green">063</FONT>         */<a name="line.63"></a>
+<FONT color="green">064</FONT>        public SpamFilterApp(String corpusZipFile)<a name="line.64"></a>
+<FONT color="green">065</FONT>        {<a name="line.65"></a>
+<FONT color="green">066</FONT>            this.corpusZipFile = corpusZipFile;<a name="line.66"></a>
+<FONT color="green">067</FONT>            spamFilterSimConfig = new KNNClassificationConfig();<a name="line.67"></a>
+<FONT color="green">068</FONT>        }<a name="line.68"></a>
+<FONT color="green">069</FONT>        <a name="line.69"></a>
+<FONT color="green">070</FONT>        <a name="line.70"></a>
+<FONT color="green">071</FONT>        /* (non-Javadoc)<a name="line.71"></a>
+<FONT color="green">072</FONT>         * @see jcolibri.cbraplications.StandardCBRApplication#configure()<a name="line.72"></a>
+<FONT color="green">073</FONT>         */<a name="line.73"></a>
+<FONT color="green">074</FONT>        public void configure() throws ExecutionException<a name="line.74"></a>
+<FONT color="green">075</FONT>        {<a name="line.75"></a>
+<FONT color="green">076</FONT>            _connector = new EmailConnector(corpusZipFile);<a name="line.76"></a>
+<FONT color="green">077</FONT>            _caseBase = new CachedLinealCaseBase();<a name="line.77"></a>
+<FONT color="green">078</FONT>        }<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        /* (non-Javadoc)<a name="line.80"></a>
+<FONT color="green">081</FONT>         * @see jcolibri.cbraplications.StandardCBRApplication#preCycle()<a name="line.81"></a>
+<FONT color="green">082</FONT>         */<a name="line.82"></a>
+<FONT color="green">083</FONT>        public CBRCaseBase preCycle() throws ExecutionException<a name="line.83"></a>
+<FONT color="green">084</FONT>        {<a name="line.84"></a>
+<FONT color="green">085</FONT>            _caseBase.init(_connector);     <a name="line.85"></a>
+<FONT color="green">086</FONT>            <a name="line.86"></a>
+<FONT color="green">087</FONT>            Collection&lt;CBRCase&gt; cases = _caseBase.getCases();<a name="line.87"></a>
+<FONT color="green">088</FONT>            <a name="line.88"></a>
+<FONT color="green">089</FONT>            //Organize cases into paragraphs, sentences and tokens<a name="line.89"></a>
+<FONT color="green">090</FONT>            OpennlpSplitter.split(cases);<a name="line.90"></a>
+<FONT color="green">091</FONT>            //Detect stopwords<a name="line.91"></a>
+<FONT color="green">092</FONT>            StopWordsDetector.detectStopWords(cases);<a name="line.92"></a>
+<FONT color="green">093</FONT>            //Stem text<a name="line.93"></a>
+<FONT color="green">094</FONT>            TextStemmer.stem(cases);<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>            tn = tp = fp = fn = 0;<a name="line.96"></a>
+<FONT color="green">097</FONT>            <a name="line.97"></a>
+<FONT color="green">098</FONT>            return _caseBase;<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>        }<a name="line.100"></a>
+<FONT color="green">101</FONT>        <a name="line.101"></a>
+<FONT color="green">102</FONT>        /* (non-Javadoc)<a name="line.102"></a>
+<FONT color="green">103</FONT>         * @see jcolibri.cbraplications.StandardCBRApplication#cycle(jcolibri.cbrcore.CBRQuery)<a name="line.103"></a>
+<FONT color="green">104</FONT>         */<a name="line.104"></a>
+<FONT color="green">105</FONT>        public void cycle(CBRQuery query) throws ExecutionException<a name="line.105"></a>
+<FONT color="green">106</FONT>        {<a name="line.106"></a>
+<FONT color="green">107</FONT>            KNNClassificationConfig spamFilterSimConfig = getKNNConfig();<a name="line.107"></a>
+<FONT color="green">108</FONT>            <a name="line.108"></a>
+<FONT color="green">109</FONT>            double predictionCost;<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>            <a name="line.111"></a>
+<FONT color="green">112</FONT>            ClassificationOracle oracle = new BasicClassificationOracle();<a name="line.112"></a>
+<FONT color="green">113</FONT>            predictionCost = oracle.getPredictionCost(query, _caseBase, spamFilterSimConfig);<a name="line.113"></a>
+<FONT color="green">114</FONT>            <a name="line.114"></a>
+<FONT color="green">115</FONT>            CBRCase _case = (CBRCase)query;<a name="line.115"></a>
+<FONT color="green">116</FONT>            EmailSolution sol = (EmailSolution)_case.getSolution();<a name="line.116"></a>
+<FONT color="green">117</FONT>            String _class = sol.getEmailClass();<a name="line.117"></a>
+<FONT color="green">118</FONT>            if(predictionCost == 0) // Prediction was ok<a name="line.118"></a>
+<FONT color="green">119</FONT>            {<a name="line.119"></a>
+<FONT color="green">120</FONT>                if(_class.equals(EmailSolution.SPAM))<a name="line.120"></a>
+<FONT color="green">121</FONT>                    tp++;<a name="line.121"></a>
+<FONT color="green">122</FONT>                else<a name="line.122"></a>
+<FONT color="green">123</FONT>                    tn++;<a name="line.123"></a>
+<FONT color="green">124</FONT>            }<a name="line.124"></a>
+<FONT color="green">125</FONT>            else<a name="line.125"></a>
+<FONT color="green">126</FONT>            {<a name="line.126"></a>
+<FONT color="green">127</FONT>                if(_class.equals(EmailSolution.SPAM))<a name="line.127"></a>
+<FONT color="green">128</FONT>                    fn++;<a name="line.128"></a>
+<FONT color="green">129</FONT>                else<a name="line.129"></a>
+<FONT color="green">130</FONT>                    fp++;<a name="line.130"></a>
+<FONT color="green">131</FONT>            }<a name="line.131"></a>
+<FONT color="green">132</FONT>                <a name="line.132"></a>
+<FONT color="green">133</FONT>            Evaluator.getEvaluationReport().addDataToSeries("Evaluation", new Double(predictionCost));<a name="line.133"></a>
+<FONT color="green">134</FONT>         }<a name="line.134"></a>
+<FONT color="green">135</FONT>        <a name="line.135"></a>
+<FONT color="green">136</FONT>    <a name="line.136"></a>
+<FONT color="green">137</FONT>        /* (non-Javadoc)<a name="line.137"></a>
+<FONT color="green">138</FONT>         * @see jcolibri.cbraplications.StandardCBRApplication#postCycle()<a name="line.138"></a>
+<FONT color="green">139</FONT>         */<a name="line.139"></a>
+<FONT color="green">140</FONT>        public void postCycle() throws ExecutionException<a name="line.140"></a>
+<FONT color="green">141</FONT>        {<a name="line.141"></a>
+<FONT color="green">142</FONT>            // TODO Auto-generated method stub<a name="line.142"></a>
+<FONT color="green">143</FONT>    <a name="line.143"></a>
+<FONT color="green">144</FONT>        }<a name="line.144"></a>
+<FONT color="green">145</FONT>        <a name="line.145"></a>
+<FONT color="green">146</FONT>        /**<a name="line.146"></a>
+<FONT color="green">147</FONT>         * Returns the KNN configuration<a name="line.147"></a>
+<FONT color="green">148</FONT>         */<a name="line.148"></a>
+<FONT color="green">149</FONT>        public KNNClassificationConfig getKNNConfig()<a name="line.149"></a>
+<FONT color="green">150</FONT>        {<a name="line.150"></a>
+<FONT color="green">151</FONT>            spamFilterSimConfig.setDescriptionSimFunction(new Average());<a name="line.151"></a>
+<FONT color="green">152</FONT>            spamFilterSimConfig.setClassificationMethod(clasifMethod);<a name="line.152"></a>
+<FONT color="green">153</FONT>            spamFilterSimConfig.setK(k);<a name="line.153"></a>
+<FONT color="green">154</FONT>            spamFilterSimConfig.addMapping(new Attribute("content",EmailDescription.class), similFunc);<a name="line.154"></a>
+<FONT color="green">155</FONT>            return spamFilterSimConfig;<a name="line.155"></a>
+<FONT color="green">156</FONT>        }<a name="line.156"></a>
+<FONT color="green">157</FONT>        <a name="line.157"></a>
+<FONT color="green">158</FONT>        /**<a name="line.158"></a>
+<FONT color="green">159</FONT>         * Sets the k<a name="line.159"></a>
+<FONT color="green">160</FONT>         * @param k The k to set.<a name="line.160"></a>
+<FONT color="green">161</FONT>         */<a name="line.161"></a>
+<FONT color="green">162</FONT>        public void setK(int k)<a name="line.162"></a>
+<FONT color="green">163</FONT>        {<a name="line.163"></a>
+<FONT color="green">164</FONT>            this.k = k;<a name="line.164"></a>
+<FONT color="green">165</FONT>        }<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>        /**<a name="line.167"></a>
+<FONT color="green">168</FONT>         * Sets the similarity function<a name="line.168"></a>
+<FONT color="green">169</FONT>         * @param similFunc The similFunc to set.<a name="line.169"></a>
+<FONT color="green">170</FONT>         */<a name="line.170"></a>
+<FONT color="green">171</FONT>        public void setSimilFunc(LocalSimilarityFunction similFunc)<a name="line.171"></a>
+<FONT color="green">172</FONT>        {<a name="line.172"></a>
+<FONT color="green">173</FONT>            this.similFunc = similFunc;<a name="line.173"></a>
+<FONT color="green">174</FONT>        }<a name="line.174"></a>
+<FONT color="green">175</FONT>        <a name="line.175"></a>
+<FONT color="green">176</FONT>        /**<a name="line.176"></a>
+<FONT color="green">177</FONT>         * Sets the classification method.<a name="line.177"></a>
+<FONT color="green">178</FONT>         * @param clasifMethod The clasifMethod to set.<a name="line.178"></a>
+<FONT color="green">179</FONT>         */<a name="line.179"></a>
+<FONT color="green">180</FONT>        public void setClasifMethod(KNNClassificationMethod clasifMethod)<a name="line.180"></a>
+<FONT color="green">181</FONT>        {<a name="line.181"></a>
+<FONT color="green">182</FONT>            this.clasifMethod = clasifMethod;<a name="line.182"></a>
+<FONT color="green">183</FONT>        }<a name="line.183"></a>
+<FONT color="green">184</FONT>    <a name="line.184"></a>
+<FONT color="green">185</FONT>        /**<a name="line.185"></a>
+<FONT color="green">186</FONT>         * Returns the false negatives.<a name="line.186"></a>
+<FONT color="green">187</FONT>         */<a name="line.187"></a>
+<FONT color="green">188</FONT>        public double getFalseNegatives()<a name="line.188"></a>
+<FONT color="green">189</FONT>        {<a name="line.189"></a>
+<FONT color="green">190</FONT>            return fn;<a name="line.190"></a>
+<FONT color="green">191</FONT>        }<a name="line.191"></a>
+<FONT color="green">192</FONT>    <a name="line.192"></a>
+<FONT color="green">193</FONT>    <a name="line.193"></a>
+<FONT color="green">194</FONT>        /**<a name="line.194"></a>
+<FONT color="green">195</FONT>         * Returns the false positives.<a name="line.195"></a>
+<FONT color="green">196</FONT>         */<a name="line.196"></a>
+<FONT color="green">197</FONT>        public double getFalsePositives()<a name="line.197"></a>
+<FONT color="green">198</FONT>        {<a name="line.198"></a>
+<FONT color="green">199</FONT>            return fp;<a name="line.199"></a>
+<FONT color="green">200</FONT>        }<a name="line.200"></a>
+<FONT color="green">201</FONT>    <a name="line.201"></a>
+<FONT color="green">202</FONT>    <a name="line.202"></a>
+<FONT color="green">203</FONT>        /**<a name="line.203"></a>
+<FONT color="green">204</FONT>         * Returns the true positives<a name="line.204"></a>
+<FONT color="green">205</FONT>         */<a name="line.205"></a>
+<FONT color="green">206</FONT>        public double getTruePositives()<a name="line.206"></a>
+<FONT color="green">207</FONT>        {<a name="line.207"></a>
+<FONT color="green">208</FONT>            return tp;<a name="line.208"></a>
+<FONT color="green">209</FONT>        }<a name="line.209"></a>
+<FONT color="green">210</FONT>        <a name="line.210"></a>
+<FONT color="green">211</FONT>        /**<a name="line.211"></a>
+<FONT color="green">212</FONT>         * Returns the true negatives<a name="line.212"></a>
+<FONT color="green">213</FONT>         */<a name="line.213"></a>
+<FONT color="green">214</FONT>        public double getTrueNegatives()<a name="line.214"></a>
+<FONT color="green">215</FONT>        {<a name="line.215"></a>
+<FONT color="green">216</FONT>            return tn;<a name="line.216"></a>
+<FONT color="green">217</FONT>        }<a name="line.217"></a>
+<FONT color="green">218</FONT>    <a name="line.218"></a>
+<FONT color="green">219</FONT>    }<a name="line.219"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
